@@ -1,10 +1,10 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>日文練習</title>
-<link rel="icon" type="image/svg+xml" href="icon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.json">
+<title>日文學習 v4</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232C4A6E'/%3E%3Ctext x='50' y='69' text-anchor='middle' font-size='58' fill='white'%3Eあ%3C/text%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="日文">
@@ -132,10 +132,23 @@ nav button b.two{font-size:15px}
 nav button.on{color:var(--indigo);font-weight:600}
 nav button.on b{opacity:1}
 .empty{text-align:center;color:var(--ink2);font-size:14px;padding:44px 20px}
+.answerbox{width:100%;min-height:54px;margin-top:14px;padding:12px 13px;border:1.5px solid var(--rule);
+  border-radius:var(--r);background:var(--card);color:var(--ink);font:inherit;font-size:17px;resize:vertical}
+.answerbox:focus{outline:2px solid var(--indigo);outline-offset:1px}
+.result{width:100%;margin-top:12px;padding:11px 13px;border-radius:var(--r);font-size:13px;text-align:left}
+.result.ok{background:color-mix(in srgb,var(--ok) 16%,var(--card));border:1px solid var(--ok)}
+.result.no{background:color-mix(in srgb,var(--seal) 10%,var(--card));border:1px solid var(--seal)}
+.rolebox{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px;margin-bottom:12px}
+.rolebox ol{padding-left:21px;margin:10px 0}.rolebox li{margin:6px 0}
+.notice{font-size:20px;line-height:1.9;white-space:pre-line;text-align:left;width:100%;padding:18px;
+  background:var(--paper);border:1px solid var(--rule);border-radius:var(--r)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head>
+<body>
 
-<div id="app"><div class="empty">読み込み中…</div></div>
+<div id="app"><div class="empty">正在啟動日文學習工具…<br><small>若此訊息持續顯示，請下載檔案後使用 Safari、Chrome 或 Edge 開啟；部分檔案預覽器會停用互動程式。</small></div></div>
+<noscript><div class="wrap"><div class="gcard">目前的開啟方式停用了 JavaScript。請下載這個 HTML 檔，再使用 Safari、Chrome 或 Edge 開啟。</div></div></noscript>
 <nav id="nav"></nav>
 
 <script>
@@ -285,12 +298,17 @@ const COURSE=[
 {n:"第一章　從零學會五十音",u:[
  {i:"1-1",t:"認識日文與五十音",g:"日文由平假名、片假名、漢字組成。同一個音有兩種寫法：平假名寫日文固有詞，片假名寫外來語和擬聲詞。看懂招牌菜單靠片假名。",kana:"table",p:[]},
  {i:"1-2",t:"清音的發音與書寫",g:"46 個基本音，平片各一套。母音只有 a i u e o 五個，比中文單純很多。",kana:"sei",p:[]},
- {i:"1-3",t:"濁音與半濁音",g:"只有四行會變濁音：か→が(K→G)、さ→ざ(S→Z)、た→だ(T→D)、は→ば(H→B)，右上加兩點，發音從氣音變成無氣音。半濁音只有は行：は→ぱ(H→P)，右上加小圈，仍是氣音。",kana:"daku",p:[]},
+ {i:"1-3",t:"濁音與半濁音",g:"只有四行會變濁音：か→が(K→G)、さ→ざ(S→Z)、た→だ(T→D)、は→ば(H→B)，右上加兩點。清音與濁音的主要差別是聲帶是否振動，不是中文送氣音與不送氣音的差別。半濁音只有は行：は→ぱ(H→P)，右上加小圈。",kana:"daku",p:[]},
  {i:"1-4",t:"拗音",g:"い段音＋小寫的や行音（ゃゅょ）合成一拍。き(ki)＋ゃ(ya) = きゃ(kya)，不是唸成 ki-ya 兩拍。濁音的い段也可以：ぎゃ、じゃ、びゃ、ぴゃ。",kana:"you",p:[]},
  {i:"1-5",t:"長音",g:"拉長一拍。平假名寫母音（おかあさん），片假名一律用橫線（コーヒー）。長短會改變意思：おばさん是阿姨、おばあさん是奶奶。",kana:"ear",p:[]},
  {i:"1-6",t:"促音",g:"小寫的っ／ッ，停頓一拍不發音。きって（郵票）vs きて（來），差一拍就是兩個字。",kana:"ear",p:[]},
  {i:"1-7",t:"重音（音調）",g:"日文靠高低音區別詞義。はし：頭高型是筷子，尾高型是橋。這個只能靠耳朵，跟著課程音檔模仿最快。",kana:"ear",p:[]}]},
-{n:"第二章　十大基礎句型",u:[
+{n:"第二章　動詞基礎與十大句型",u:[
+ {i:"2-0",t:"動詞三類與て形",g:"<b>第一類（五段）</b>：ます前多為い段音。て形規則：う・つ・る→って，む・ぶ・ぬ→んで，く→いて，ぐ→いで，す→して；行きます例外為行って。<br><b>第二類（一段）</b>：去掉ます，加て，例如食べます→食べて。<br><b>第三類（不規則）</b>：します→して、来ます→来て。先會て形，才能正確使用「てください、てもいいですか、ています」。",p:[
+  ["請稍等。","ちょっと 待って ください。","ちょっと まって ください。"],
+  ["請在這裡寫。","ここに 書いて ください。","ここに かいて ください。"],
+  ["可以在這裡吃嗎？","ここで 食べても いいですか。","ここで たべても いいですか。"],
+  ["我正在找車站。","駅を 探しています。","えきを さがしています。"]]},
  {i:"2-1",t:"你我他、這那哪",g:"私／あなた／彼・これ／それ／あれ／どれ・ここ／そこ／あそこ／どこ",p:[
   ["我姓林。","私は 林です。","わたしは りんです。"],
   ["這個是什麼？","これは 何ですか。","これは なんですか。"],
@@ -340,7 +358,7 @@ const COURSE=[
   ["不好意思，我不太懂日文。","すみません、日本語が よく 分かりません。","すみません、にほんごが よく わかりません。"],
   ["請再說一次。","もう一度 お願いします。","もういちど おねがいします。"],
   ["請說慢一點。","ゆっくり お願いします。","ゆっくり おねがいします。"],
-  ["可以用英文嗎？","英語は 大丈夫ですか。","えいごは だいじょうぶですか。"]]}]},
+  ["可以用英文溝通嗎？","英語でも いいですか。","えいごでも いいですか。"]]}]},
 {n:"第三章　日常敬語與禮儀",u:[
  {i:"3-1",t:"自我介紹",g:"申します 是 言います 的謙讓語，正式場合用它比較得體。",p:[
   ["初次見面，我姓林。","初めまして、林と 申します。","はじめまして、りんと もうします。"],
@@ -362,10 +380,10 @@ const COURSE=[
   ["百忙之中不好意思。","お忙しいところ すみません。","おいそがしいところ すみません。"],
   ["可以麻煩您嗎？","お願いしても いいですか。","おねがいしても いいですか。"],
   ["幫了大忙，謝謝。","助かりました。","たすかりました。"]]},
- {i:"3-5",t:"送禮",g:"つまらないものですが 是謙虛的客套，不是真的說東西沒價值。",p:[
-  ["這是一點小意思。","つまらない ものですが。",""],
+ {i:"3-5",t:"送禮",g:"ほんの気持ちですが 是現代自然又得體的說法，表示只是一點心意。",p:[
+  ["這是一點小意思。","ほんの 気持ちですが。","ほんの きもちですが。"],
   ["這是台灣的伴手禮。","台湾の お土産です。","たいわんの おみやげです。"],
-  ["請笑納。","どうぞ 受け取って ください。","どうぞ うけとって ください。"],
+  ["請收下。","よかったら、どうぞ。",""],
   ["謝謝招待。","ごちそうさまでした。",""]]},
  {i:"3-6",t:"打電話",g:"電話看不到表情，開頭一定要先報名字。",p:[
   ["喂，我是林。","もしもし、林です。","もしもし、りんです。"],
@@ -521,7 +539,7 @@ const COURSE=[
   ["請在這裡停。","ここで 止めて ください。","ここで とめて ください。"],
   ["請幫我開後車廂。","トランクを 開けて ください。","トランクを あけて ください。"]]},
  {i:"7-5",t:"包車",g:"貸切（かしきり）是包車、包場。",p:[
-  ["可以包車一天嗎？","一日 貸切は できますか。","いちにち かしきりは できますか。"],
+  ["可以包車一天嗎？","一日 貸し切りに できますか。","いちにち かしきりに できますか。"],
   ["費用怎麼算？","料金は どう なりますか。","りょうきんは どう なりますか。"],
   ["可以請您在這裡等嗎？","ここで 待って いただけますか。","ここで まって いただけますか。"],
   ["下一站請到這裡。","次は ここへ お願いします。","つぎは ここへ おねがいします。"]]},
@@ -559,7 +577,7 @@ const COURSE=[
   ["有包場的湯屋嗎？","貸切風呂は ありますか。","かしきりぶろは ありますか。"]]},
  {i:"8-5",t:"遊樂園",g:"待ち時間（排隊時間）是最常問的一句。",p:[
   ["要排多久？","待ち時間は どのくらいですか。","まちじかんは どのくらいですか。"],
-  ["有快速通關票嗎？","優先チケットは ありますか。","ゆうせんチケットは ありますか。"],
+  ["有快速通關票嗎？","優先入場券は ありますか。","ゆうせんにゅうじょうけんは ありますか。"],
   ["身高限制幾公分？","身長制限は 何センチですか。","しんちょうせいげんは なんセンチですか。"],
   ["投幣置物櫃在哪裡？","コインロッカーは どこですか。",""]]},
  {i:"8-6",t:"博物館與美術館",g:"枚（まい）是票券的量詞：大人二枚。",p:[
@@ -630,7 +648,7 @@ const COURSE=[
   ["這裡會痛。","ここが 痛いです。","ここが いたいです。"]]},
  {i:"11-3",t:"藥局買藥",g:"食後（飯後）、食前（飯前）、副作用 是拿藥必聽的字。",p:[
   ["有止痛藥嗎？","痛み止めは ありますか。","いたみどめは ありますか。"],
-  ["這個怎麼服用？","これは どう 飲みますか。","これは どう のみますか。"],
+  ["這個藥要怎麼服用？","この薬は どのように 飲めば いいですか。","このくすりは どのように のめば いいですか。"],
   ["是飯後吃嗎？","食後ですか。","しょくごですか。"],
   ["有副作用嗎？","副作用は ありますか。","ふくさようは ありますか。"]]}]},
 {n:"第十二章　生活手續與服務",u:[
@@ -675,7 +693,7 @@ const GRAM4=[
 {p:"〜と（條件）",n:"必然的結果、自然現象、路線指示。後面不能接意志或請求。",ex:[["まっすぐ行くと、駅があります。","直走就會有車站。"],["右に曲がると見えます。","右轉就看得到。"]],q:"この信号を右に曲がる ___ 、駅です。",o:["と","たら","ば","なら"],a:0},
 {p:"〜たら（條件）",n:"最泛用的條件句。「如果…的話」「…之後」。後面可接請求和意志。",ex:[["見つかったら連絡してください。","找到的話請聯絡我。"],["安かったら買います。","便宜的話就買。"]],q:"雨が降っ ___ 、行きません。",o:["たら","ると","ても","ながら"],a:0},
 {p:"〜ば（條件）",n:"假設條件，偏書面。行く→行けば、食べる→食べれば、安い→安ければ。",ex:[["時間があれば行きます。","有時間的話會去。"]],q:"安けれ ___ 買います。",o:["ば","たら","と","なら"],a:0},
-{p:"〜なら",n:"承接對方的話題再給建議。「如果是…的話」。",ex:[["富士山駅なら、この道をまっすぐです。","要去富士山車站的話，這條路直走。"]],q:"温泉 ___ 、箱根がおすすめです。",o:["なら","たら","ると","ては"],a:0},
+{p:"〜なら",n:"承接對方的話題再給建議。「如果是…的話」。",ex:[["富士山駅なら、この道をまっすぐ行ってください。","要去富士山車站的話，請沿這條路直走。"]],q:"温泉 ___ 、箱根がおすすめです。",o:["なら","たら","ると","ては"],a:0},
 {p:"〜つもりです",n:"自己的打算、意圖。辞書形＋つもり。否定用〜ないつもり。",ex:[["来年、日本へ行くつもりです。","打算明年去日本。"]],q:"買う ___ です。（我打算買）",o:["つもり","はず","そう","よう"],a:0},
 {p:"〜予定です",n:"已排定的計畫、行程。比つもり客觀。",ex:[["三時に着く予定です。","預計三點抵達。"]],q:"明日 帰る ___ です。（預計）",o:["予定","つもり","らしい","みたい"],a:0},
 {p:"〜そうです（樣態）",n:"看起來像。い形去い＋そう、な形直接＋そう、動詞ます形＋そう。いい→よさそう。",ex:[["おいしそうですね。","看起來很好吃。"],["雨が降りそうです。","看起來要下雨。"]],q:"この店は 高 ___ です。（看起來很貴）",o:["そう","よう","らしい","みたい"],a:0},
@@ -684,7 +702,7 @@ const GRAM4=[
 {p:"〜かもしれません",n:"也許、說不定。可能性比〜でしょう低。接常體。",ex:[["ピアスを忘れたかもしれません。","可能把耳環忘了。"]],q:"遅れる ___ 。（可能會遲到）",o:["かもしれません","はずです","つもりです","ようです"],a:0},
 {p:"〜はずです",n:"照理說應該。有根據的推斷。",ex:[["三時に着くはずです。","照理說三點會到。"],["そんなはずはありません。","不可能有這種事。"]],q:"予約したから、席がある ___ です。",o:["はず","つもり","そう","らしい"],a:0},
 {p:"〜なければなりません",n:"必須。口語常說〜なきゃ／〜ないと。",ex:[["パスポートを見せなければなりません。","必須出示護照。"]],q:"レシートを持って行か ___ なりません。",o:["なければ","なくても","ないで","なくて"],a:0},
-{p:"〜なくてもいいです",n:"不必、不用。",ex:[["袋は入れなくてもいいです。","不用給我袋子。"],["予約しなくてもいいですか。","可以不用預約嗎？"]],q:"急が ___ いいですよ。（不用趕）",o:["なくても","なければ","ないでも","なくて"],a:0},
+{p:"〜なくてもいいです",n:"不必、不用。",ex:[["袋に入れなくてもいいです。","不用裝進袋子裡。"],["予約しなくてもいいですか。","可以不用預約嗎？"]],q:"急が ___ いいですよ。（不用趕）",o:["なくても","なければ","ないでも","なくて"],a:0},
 {p:"〜てはいけません",n:"禁止。告示牌常用〜ないでください或〜禁止。",ex:[["ここで写真を撮ってはいけません。","這裡不可以拍照。"]],q:"日本国内で開封し ___ いけません。",o:["ては","なくては","たら","ても"],a:0},
 {p:"あげる／くれる／もらう",n:"授受的方向：我給別人用あげる，別人給我用くれる，我從別人那得到用もらう。",ex:[["友達にお土産をあげました。","給了朋友伴手禮。"],["先生が本をくれました。","老師給了我書。"]],q:"中山さんがお菓子を ___ 。（給我）",o:["くれました","あげました","もらいました","やりました"],a:0},
 {p:"〜ていただけますか",n:"最客氣的請求。〜てくれませんか＜〜てもらえますか＜〜ていただけますか。",ex:[["もう一度言っていただけますか。","可以請您再說一次嗎？"]],q:"荷物を預かって ___ か。（最客氣）",o:["いただけます","もらえます","くれます","あげます"],a:0},
@@ -726,8 +744,8 @@ const VOCAB4=[
 ["てつだいます","手伝います","幫忙","動詞"],["たすけます","助けます","救助","動詞"],
 ["あつめます","集めます","收集","動詞"],["かたづけます","片付けます","收拾","動詞"],
 ["すてます","捨てます","丟棄","動詞"],["ひろいます","拾います","撿","動詞"],
-["ならびます","並びます","排隊","動詞"],["こみます","込みます","擁擠","動詞"],
-["すきます","空きます","空、有空位","動詞"],["あきます","開きます","開（自動）","動詞"],
+["ならびます","並びます","排隊","動詞"],["こみます","混みます","擁擠","動詞"],
+["すきます","空きます","變空、不再擁擠","動詞"],["あきます","開きます","打開、開門（自動）","動詞"],
 ["しまります","閉まります","關（自動）","動詞"],["つきます","点きます","（燈）亮起","動詞"],
 ["なれます","慣れます","習慣","動詞"],["つかれます","疲れます","累","動詞"],
 ["ねむります","眠ります","睡覺","動詞"],["おきます","起きます","起床、發生","動詞"],
@@ -917,12 +935,23 @@ const TASKS={
 "8-1":["請路人幫忙拍照","確認可不可以拍照"],"8-5":["詢問遊樂設施資訊","詢問遊行時間"],
 "10-2":["聊天氣練習"],"10-8":["交友聊天總複習"]};
 
+/* ============ 實用短文閱讀 [標題, 內文, 問題, 選項, 答案, 解說] ============ */
+const READING=[
+["餐廳營業時間","営業時間　11:00〜21:00\nラストオーダー　20:30","最晚幾點可以點餐？",["20:30","21:00","11:00"],0,"ラストオーダー是最後點餐時間。"],
+["臨時休息","本日、設備点検のため休業いたします。\n明日は通常どおり営業します。","這家店今天怎麼了？",["提早打烊","設備檢查，暫停營業","明天也休息"],1,"休業表示停止營業；通常どおり表示照常。"],
+["列車延誤","人身事故の影響で、電車が約30分遅れています。","電車目前延誤多久？",["約13分鐘","約30分鐘","無法確定"],1,"遅れています表示正在延誤。"],
+["飯店早餐","朝食会場：2階レストラン\n時間：6:30〜10:00\n9:30までにお入りください。","最晚幾點要進入餐廳？",["9:30","10:00","6:30"],0,"までに表示必須在該時間以前完成。"],
+["免稅說明","免税をご希望のお客様は、パスポートをご提示ください。","辦理免稅需要出示什麼？",["信用卡","機票","護照"],2,"提示する是出示；ご提示ください是敬語請求。"],
+["垃圾分類","ペットボトルは、キャップとラベルを外してから捨ててください。","寶特瓶丟棄前要做什麼？",["清空後直接丟","取下瓶蓋和標籤","裝入紙袋"],1,"外してから是取下之後再做下一個動作。"],
+["藥品服法","一日3回、食後に1錠ずつ、水またはぬるま湯でお飲みください。","這個藥怎麼吃？",["每天三次，飯後一錠","每天一次，飯前三錠","不舒服時吃兩錠"],0,"一日3回是一天三次；食後是飯後；1錠ずつ是每次一錠。"],
+["館內規定","館内での写真撮影および飲食はご遠慮ください。","館內禁止哪些行為？",["拍照和飲食","說話和走動","使用手機和購物"],0,"ご遠慮ください是委婉表示請勿從事某行為。"]];
+
 /* ============ 60 天學習計劃（對應課程附的計劃表） ============ */
 const PLAN=[
 [["1-1","1-2"],"搭配五十音練習冊・清音"],[[],"清音書寫練習"],[[],"清音書寫練習"],
 [["1-3"],"搭配練習冊・濁音半濁音"],[["1-4"],"搭配練習冊・拗音"],[["1-5"],""],[["1-6"],""],[["1-7"],""],
 [[],"第一章總複習"],
-[["2-1"],""],[["2-2"],""],[["2-3"],""],[["2-4"],""],[["2-5"],""],
+[["2-0","2-1"],"先學動詞三類與て形"],[["2-2"],""],[["2-3"],""],[["2-4"],""],[["2-5"],""],
 [["2-6"],""],[["2-7"],""],[["2-8"],""],[["2-9"],""],[["2-10"],""],
 [[],"第二章總複習"],
 [["3-1"],""],[["3-2","3-3"],""],[["3-4"],""],[["3-4"],"再練一次"],[["3-5"],""],[["3-6"],""],
@@ -956,12 +985,12 @@ const fparts=g=>{const i=g.q.indexOf("___");if(i<0)return null;
           tail:g.q.slice(i+3).replace(/（[^）]*）/g,"").replace(/\s*$/,"")};};
 const filled=g=>{const f=fparts(g);return f?(f.head+f.ans+f.tail).trim():"";};
 function push(id,deck,track,front,back,sub,extra,speak){DECKS.push({id,deck,track,front,back,sub,extra,speak});}
-KANA.forEach((k,i)=>{push("k"+i,"kana","jlpt",k[0],k[2],k[1],k[3]?"易混淆字，注意筆順":"",k[0]);DECKS[DECKS.length-1].row="sei";});
-KANA_D.forEach((k,i)=>{push("kd"+i,"kana","jlpt",k[0],k[2],k[1],"濁音／半濁音",k[0]);DECKS[DECKS.length-1].row="daku";});
-KANA_Y.forEach((k,i)=>{push("ky"+i,"kana","jlpt",k[0],k[2],k[1],"拗音：小字不佔一拍",k[0]);DECKS[DECKS.length-1].row="you";});
 KANA.forEach((k,i)=>{push("hr"+i,"hira","jlpt",k[1],k[2],"","片假名寫作 "+k[0],k[1]);DECKS[DECKS.length-1].row="sei";});
 KANA_D.forEach((k,i)=>{push("hrd"+i,"hira","jlpt",k[1],k[2],"","濁音／半濁音・片假名 "+k[0],k[1]);DECKS[DECKS.length-1].row="daku";});
 KANA_Y.forEach((k,i)=>{push("hry"+i,"hira","jlpt",k[1],k[2],"","拗音・片假名 "+k[0],k[1]);DECKS[DECKS.length-1].row="you";});
+KANA.forEach((k,i)=>{push("k"+i,"kana","jlpt",k[0],k[2],k[1],k[3]?"易混淆字，注意筆順":"",k[0]);DECKS[DECKS.length-1].row="sei";});
+KANA_D.forEach((k,i)=>{push("kd"+i,"kana","jlpt",k[0],k[2],k[1],"濁音／半濁音",k[0]);DECKS[DECKS.length-1].row="daku";});
+KANA_Y.forEach((k,i)=>{push("ky"+i,"kana","jlpt",k[0],k[2],k[1],"拗音：小字不佔一拍",k[0]);DECKS[DECKS.length-1].row="you";});
 let ni=0;
 CNT.forEach(c=>c.ir.forEach(x=>push("n"+(ni++),"num","jlpt",x[0]+c.c.slice(1),x[1],"",c.c+"　"+c.m,x[1])));
 DATES.forEach(d=>push("nd"+d[0],"num","jlpt",d[0]+"日",d[1],"","日期讀法",d[1]));
@@ -977,7 +1006,7 @@ GRAM4.forEach((g,i)=>{push("h"+i,"gram4","jlpt",g.q,g.o[g.a],g.p,g.n,filled(g));
 let pn=0;
 COURSE.forEach(ch=>ch.u.forEach(u=>{
   u.ch=ch.n;u.ids=[];UNITS.push(u);
-  u.p.forEach(p=>{const id="p"+(pn++);u.ids.push(id);
+  u.p.forEach((p,pi)=>{const id=u.i==="2-0"?("core"+pi):("p"+(pn++));u.ids.push(id);
     push(id,"phrase","travel",p[0],p[1],p[2]||"",u.i+"　"+u.t,p[1]);});
 }));
 DECKS.filter(c=>["phrase","vocab","loan"].includes(c.deck)&&c.speak).slice().forEach(b=>{
@@ -1328,7 +1357,9 @@ const BY={};DECKS.forEach(c=>{(BY[c.deck]=BY[c.deck]||[]).push(c);});
    優先用 Claude Artifact 的 window.storage（綁帳號、跨裝置同步）
    shared 參數一定要明確傳 false，不傳會 Unexpected response type
    雲端寫不進去時自動退到 localStorage，兩邊都寫不進去才報錯          */
-const CLOUD=(typeof window!=="undefined"&&window.storage)?window.storage:null;
+/* 獨立 HTML 固定使用瀏覽器儲存；部分內嵌預覽器雖暴露 window.storage，
+   實際呼叫卻不回應，會讓整個首頁永遠停在載入畫面。跨裝置仍可使用下方 Supabase 同步。 */
+const CLOUD=null;
 const LOCAL=(()=>{try{localStorage.setItem("__probe","1");localStorage.removeItem("__probe");
   return{get:k=>{const v=localStorage.getItem(k);return v===null?null:v;},
          set:(k,v)=>{localStorage.setItem(k,v);}};}catch(e){return null;}})();
@@ -1492,9 +1523,9 @@ async function syncNow(manual){
 }
 
 /* ============ 狀態 ============ */
-const KEY="jp:v3";
+const KEY="jp:v4";
 let S={cards:{},day:{d:"",newN:0,revN:0},streak:0,last:"",total:0,newPerDay:12,done:{},
-       rate:0.7,start:"",task:{},off:{vocab4:1,gram4:1,listen:1}};
+       rate:0.7,start:"",task:{},reading:{},output:{correct:0,total:0},off:{vocab4:1,gram4:1,listen:1}};
 const today=()=>new Date().toLocaleDateString("sv");
 const dnum=s=>Math.floor(new Date(s+"T00:00:00").getTime()/864e5);
 let lastErr="",savedAt="",loadedFrom="";
@@ -1502,12 +1533,13 @@ async function readKey(k){return await rawGet(k);}
 async function load(){
   let raw=await readKey(KEY);
   if(raw){loadedFrom=KEY;}
-  else{for(const k of ["jp:v2","jp:v1"]){raw=await readKey(k);if(raw){loadedFrom=k+"（舊版搬遷）";break;}}}
+  else{for(const k of ["jp:v3","jp:v2","jp:v1"]){raw=await readKey(k);if(raw){loadedFrom=k+"（舊版搬遷）";break;}}}
   if(raw){
     try{S=Object.assign(S,JSON.parse(raw));}
     catch(e){lastErr="讀到的資料損毀，無法解析";loadedFrom="";}
   }else{loadedFrom="沒有找到既有進度（第一次使用會是這樣）";}
-  if(!S.done)S.done={};if(!S.task)S.task={};if(!S.off)S.off={vocab4:1,gram4:1,listen:1};
+  if(!S.done)S.done={};if(!S.task)S.task={};if(!S.reading)S.reading={};if(!S.output)S.output={correct:0,total:0};
+  if(!S.off)S.off={vocab4:1,gram4:1,listen:1};
   if(typeof S.rate!=="number")S.rate=0.7;if(!S.start)S.start="";
   const t=today();
   if(S.day.d!==t){
@@ -1547,14 +1579,18 @@ function grade(id,g){
   S.cards[id]=c;S.total++;S.last=today();S.mtime=Date.now();save();return g===0;
 }
 function unlockedPhrases(){
-  const anyDone=Object.keys(S.done).length>0;
-  return DECKS.filter(c=>c.deck==="phrase"&&(!anyDone||UNITS.some(u=>S.done[u.i]&&u.ids.includes(c.id))));
+  return DECKS.filter(c=>c.deck==="phrase"&&UNITS.some(u=>S.done[u.i]&&u.ids.includes(c.id)));
 }
 function buildQueue(){
   const dueC=DECKS.filter(c=>isDue(c.id));
-  const nj=DECKS.filter(c=>!seen(c.id)&&c.track==="jlpt"&&!S.off[c.deck]);
+  const hiraReady=BY.hira.filter(c=>c.row==="sei").every(c=>seen(c.id));
+  const kataReady=BY.kana.filter(c=>c.row==="sei").every(c=>seen(c.id));
+  const nj=DECKS.filter(c=>!seen(c.id)&&c.track==="jlpt"&&!S.off[c.deck]
+    &&(!hiraReady?(c.deck==="hira"&&c.row==="sei")
+      :(!kataReady?(c.deck==="kana"&&c.row==="sei"):true)));
   const up=unlockedPhrases();
-  const nt=DECKS.filter(c=>!seen(c.id)&&c.track==="travel"&&!S.off[c.deck]&&(c.deck!=="phrase"||up.includes(c)));
+  const nt=kataReady?DECKS.filter(c=>!seen(c.id)&&c.track==="travel"&&!S.off[c.deck]
+    &&(c.deck!=="phrase"||up.includes(c))):[];
   const room=Math.max(0,S.newPerDay-S.day.newN),fresh=[];
   for(let i=0;fresh.length<room&&(i<nj.length||i<nt.length);i++){
     if(nj[i])fresh.push(nj[i]);
@@ -1604,7 +1640,7 @@ function drawNav(){
   navEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{session=null;tab=b.dataset.t;render();});
 }
 function render(){
-  if(session)return drawStudy();
+  if(session)return session.prod?drawProduction():(session.role?drawRole():(session.reading?drawReading():drawStudy()));
   app.innerHTML=({today:vToday,kana:vKana,vocab:vVocab,gram:vGram,course:vCourse,find:vFind}[tab])();
   bind();drawNav();window.scrollTo(0,0);
 }
@@ -1674,6 +1710,7 @@ function bind(){
     S.start=S.start?"":today();save();render();});
   app.querySelectorAll("[data-task]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();
     const k=e.dataset.task;if(S.task[k])delete S.task[k];else S.task[k]=1;save();render();});
+  app.querySelectorAll("[data-role]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();startRole(e.dataset.role);});
   app.querySelectorAll("[data-u]").forEach(e=>e.onclick=()=>{openU=openU===e.dataset.u?null:e.dataset.u;render();});
   app.querySelectorAll("[data-chk]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();
     const k=e.dataset.chk;if(S.done[k])delete S.done[k];else S.done[k]=1;save();render();});
@@ -1688,6 +1725,7 @@ function vToday(){
   const done=S.day.newN+S.day.revN;
   const cells=Array.from({length:32},(_,i)=>`<i class="${i<done?(i<S.day.newN?"n":"f"):""}"></i>`).join("");
   const seenN=Object.keys(S.cards).length,uDone=Object.keys(S.done).length;
+  const wrongN=Object.values(S.cards).filter(c=>c.lapse>0).length;
   const next=UNITS.find(u=>!S.done[u.i]);
   return `<div class="wrap">
   <h1>今日の学習</h1>
@@ -1706,9 +1744,15 @@ function vToday(){
     <div><b>${done}</b><span>今日完成</span></div></div>
   ${q.length?`<button class="cta" data-start="all">開始今天的 ${q.length} 張</button>`
    :`<div class="cta done">今天做完了。明天有 ${DECKS.filter(c=>{const x=S.cards[c.id];return x&&x.due===dnum(today())+1;}).length} 張要複習</div>`}
+  <button class="cta2" data-start="hira">只練平假名</button>
   <button class="cta2" data-start="kana">只練片假名</button>
   <button class="cta2" data-start="mixup">易混字挑戰</button>
   <button class="cta2" data-start="listen">聽力練習（只聽聲音）</button>
+  <button class="cta2" data-start="produce">中文提示 → 自己輸入或說日文</button>
+  <button class="cta2" data-start="dictation">日文聽寫</button>
+  <button class="cta2" data-start="reading">實用短文閱讀（${Object.keys(S.reading).length}/${READING.length}）</button>
+  ${wrongN?`<button class="cta2" data-start="wrong">錯題複習（${wrongN} 張）</button>`:""}
+  ${S.output.total?`<p class="sub" style="margin-top:10px">輸出練習正確率 ${Math.round(S.output.correct/S.output.total*100)}%（${S.output.correct}/${S.output.total}）</p>`:""}
   ${next?`<button class="cta2" data-ch="${COURSE.findIndex(c=>c.u.includes(next))}" data-unit="${next.i}">下一個課程單元：${next.i} ${next.t}</button>`:""}
   <h2>進度</h2><div class="bars">${bars()}</div>
   <button class="row" data-setopen style="margin-top:24px">
@@ -1846,7 +1890,16 @@ function vHira(){
   <h2>拗音</h2>${kt(conv(KANA_Y),3)}
   <h2>容易搞混的組合</h2>
   ${MIXUP.filter(m=>isHira(m[0])).map(m=>`<div class="gcard"><div class="p jp">${m[0]} ／ ${m[1]}</div>
-    <div class="n" style="margin:0">${m[2]}</div></div>`).join("")}</div>`;
+    <div class="n" style="margin:0">${m[2]}</div></div>`).join("")}
+  <h2>發音與節奏</h2>
+  <div class="gcard"><div class="p jp">拍（モーラ）</div><div class="n">假名、長音、促音「っ」和撥音「ん」通常各佔一拍。きって是三拍：き・っ・て。</div>
+    <button class="spk" data-say="きて、きって">▸ 比較 きて／きって</button></div>
+  <div class="gcard"><div class="p jp">長音</div><div class="n">平假名不只重複母音，也常用「えい、こう」表示長音；不要逐字念成兩個分離的音。</div>
+    <button class="spk" data-say="おばさん、おばあさん。ここ、こうこう。">▸ 聽長短音對比</button></div>
+  <div class="gcard"><div class="p jp">し・ち・つ・ふ・ら行</div><div class="n">這些音不能直接套用中文注音。先模仿完整單字，再逐步降低朗讀速度。</div>
+    <button class="spk" data-say="しお、ちず、つぎ、ふゆ、りょこう">▸ 聽例詞</button></div>
+  <div class="gcard"><div class="p jp">母音弱化</div><div class="n">です、ます中的「す」，以及部分き、く、し、つ，在自然語速下可能變得很輕，但拍數仍然存在。</div>
+    <button class="spk" data-say="よろしく お願いします。">▸ 聽自然句子</button></div></div>`;
 }
 
 /* --- 單字 --- */
@@ -1975,6 +2028,7 @@ function vChapters(){
     return `<button data-ch="${i}" class="pill ${i===openC?"nx":(d===c.u.length?"on":"")}" style="padding:7px 12px;font-size:12px">${c.n.split("　")[0]}</button>`;}).join("")}
   </div>
   <h2>${ch.n}<span style="float:right;font-weight:400;color:var(--ink2);font-size:12px">${uD}/${ch.u.length}</span></h2>
+  ${ch.u.some(u=>u.p.length)?`<button class="cta2" data-start="chq:${openC}" style="margin:0 0 12px">本章輸出測驗</button>`:""}
   ${ch.u.map(u=>{
     const on=!!S.done[u.i],op=openU===u.i;
     const m=u.ids.filter(id=>mastery(id)===2).length;
@@ -1990,11 +2044,11 @@ function vChapters(){
           you:`<button class="cta2" data-start="row:you" style="margin:10px 0 0">練拗音（66 張）</button>`,
           ear:`<div class="n" style="margin:10px 0 0;color:var(--ink3)">這個單元靠耳朵，卡片練不到。請搭配課程音檔反覆聽</div>`
          }[u.kana])||""}
-      ${TASKS[u.i]?`<div class="pat" style="color:var(--ink3)">口說任務（內容見會話模板 PDF 或 AI 口說 APP）</div>
+      ${TASKS[u.i]?`<div class="pat" style="color:var(--ink3)">口說任務：先完成情境挑戰，再勾選完成</div>
       ${TASKS[u.i].map((t,ti)=>{const k=u.i+"#"+ti;
-        return `<button class="row" data-task="${k}" style="margin:6px 0 0;padding:9px 11px">
+        return `<button class="row" data-role="${k}" style="margin:6px 0 0;padding:9px 11px">
         <div class="l"><div class="t" style="font-size:14px">${t}</div></div>
-        <span class="chk ${S.task[k]?"on":""}" style="width:20px;height:20px;font-size:12px">✓</span></button>`;}).join("")}`:""}
+        <span class="pill ${S.task[k]?"on":"nx"}">${S.task[k]?"已完成":"開始"}</span></button>`;}).join("")}`:""}
       ${u.p.map(p=>`<div class="ph" data-say="${esc(p[1])}"><div class="z">${p[0]}</div>
         <div class="j jp">${p[1]}</div>${p[2]?`<div class="k jp">${p[2]}</div>`:""}</div>`).join("")}
       ${u.p.length?`<button class="cta2" data-start="u:${u.i}" style="margin:12px 0 0">練這個單元的 ${u.p.length} 句</button>`:""}
@@ -2039,7 +2093,30 @@ function vFind(){
 /* --- 學習 --- */
 function startSession(kind){
   let q;
-  if(kind==="all")q=buildQueue();
+  if(kind==="reading"){
+    const todo=READING.map((_,i)=>i).filter(i=>!S.reading[i]);
+    session={reading:true,q:(todo.length?todo:READING.map((_,i)=>i)),i:0,picked:null};render();return;
+  }
+  if(kind==="produce"){
+    q=unlockedPhrases();
+    if(!q.length){alert("請先到「課程」完成至少一個含會話句的單元，再開始輸出練習。");return;}
+    return startProduction("produce",q);
+  }
+  if(kind==="dictation"){
+    const ids=new Set(unlockedPhrases().map(c=>"L"+c.id));
+    q=DECKS.filter(c=>c.deck==="listen"&&(ids.has(c.id)||(c.id.startsWith("Lv")&&seen(c.id.slice(1)))));
+    if(!q.length){alert("請先完成會話單元或學過一些單字，再開始聽寫。");return;}
+    return startProduction("dictation",q);
+  }
+  if(kind==="wrong"){
+    q=DECKS.filter(c=>S.cards[c.id]&&S.cards[c.id].lapse>0)
+      .sort((a,b)=>S.cards[b.id].lapse-S.cards[a.id].lapse).slice(0,25);
+  }
+  else if(kind.startsWith("chq:")){
+    const ch=COURSE[+kind.slice(4)];q=ch.u.flatMap(u=>u.ids.map(id=>DECKS.find(c=>c.id===id)).filter(Boolean));
+    if(!q.length)return;return startProduction("chapter",q,`${ch.n}測驗`);
+  }
+  else if(kind==="all")q=buildQueue();
   else if(kind==="mixup"){session={mix:true,i:0,q:mixQ()};shown=false;return render();}
   else if(kind.startsWith("row:")){
     const r=kind.slice(4);
@@ -2057,6 +2134,99 @@ function startSession(kind){
   }
   if(!q||!q.length)return;
   session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;undoSnap=null;played=0;taught=false;render();
+}
+
+/* ============ 產出、聽寫與口說任務 ============ */
+const normJP=s=>String(s||"").normalize("NFKC").toLowerCase()
+  .replace(/[\s、。！？!?,，．・「」『』（）()]/g,"");
+function startProduction(mode,pool,title){
+  const q=shuf(pool.slice()).slice(0,mode==="chapter"?20:12);
+  session={prod:true,mode,q,i:0,n:q.length,title:title||"",answered:false,input:"",ok:false};
+  render();
+}
+function startSpeech(target,done){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert("這個瀏覽器不支援語音辨識，請改用鍵盤輸入；iPhone 建議直接使用鍵盤上的麥克風。 ");return;}
+  const r=new SR();r.lang="ja-JP";r.interimResults=false;r.maxAlternatives=3;
+  target.textContent="聆聽中…";target.disabled=true;
+  r.onresult=e=>done(e.results[0][0].transcript);
+  r.onerror=()=>{target.textContent="🎙 再說一次";target.disabled=false;};
+  r.onend=()=>{target.textContent="🎙 用日文回答";target.disabled=false;};r.start();
+}
+function drawProduction(){
+  navEl.innerHTML="";
+  if(session.i>=session.q.length){
+    app.innerHTML=`<div class="study"><div class="face"><div class="mid">輸出練習完成</div>
+      <div class="hint">完成 ${session.n} 題；累積正確率 ${S.output.total?Math.round(S.output.correct/S.output.total*100):0}%</div></div>
+      <button class="cta" id="bk">回到今日</button></div>`;
+    document.getElementById("bk").onclick=()=>{session=null;tab="today";render();};return;
+  }
+  const c=session.q[session.i],dict=session.mode==="dictation";
+  const label=dict?"聽寫":(session.mode==="chapter"?(session.title||"本章測驗"):"中文轉日文");
+  const accepted=dict?[c.sub]:[c.back,c.sub].filter(Boolean),answerJP=dict?c.sub:c.back,answerNote=dict?c.back:c.sub;
+  const result=session.answered
+    ?(session.ok?`<div class="gcard" style="border-color:var(--ok)"><b>答對了</b><div class="jp" style="margin-top:6px">${esc(answerJP)}</div>${answerNote?`<div class="hint jp">${esc(answerNote)}</div>`:""}</div>`
+      :`<div class="gcard" style="border-color:var(--seal)"><b>再確認一次</b><div class="hint">你的答案：${esc(session.input||"（未作答）")}</div><div class="jp" style="margin-top:8px">${esc(answerJP)}</div>${answerNote?`<div class="hint jp">${esc(answerNote)}</div>`:""}</div>`):"";
+  app.innerHTML=`<div class="study"><div class="qbar"><div>${label}</div><div>${session.i+1} / ${session.q.length}</div></div>
+    <div class="face">${dict?`<button class="spk" id="playq" style="font-size:25px;padding:24px 38px">▶ 播放題目</button>`
+      :`<div class="small">${esc(c.front)}</div>`}
+      ${session.answered?result:`<textarea class="answerbox jp" id="prodinput" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="輸入日文；也可以使用語音回答"></textarea>
+      <button class="spk" id="mic">🎙 用日文回答</button>`}</div>
+    ${session.answered?`<div class="grades" style="grid-template-columns:1fr 1fr"><button class="g0" id="markwrong">加入錯題</button><button class="g2" id="markright">答對，下一題</button></div>`
+      :`<button class="cta" id="checkprod">檢查答案</button><button class="cta2" id="showprod">顯示答案</button>`}
+    <button class="cta2" id="quit">結束這輪</button></div>`;
+  const play=document.getElementById("playq");if(play){play.onclick=()=>say(c.speak);setTimeout(()=>say(c.speak),180);}
+  const inp=document.getElementById("prodinput"),mic=document.getElementById("mic");
+  if(inp){inp.value=session.input||"";inp.focus();inp.oninput=()=>session.input=inp.value;
+    inp.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")document.getElementById("checkprod").click();};}
+  if(mic)mic.onclick=()=>startSpeech(mic,t=>{session.input=t;inp.value=t;});
+  const answer=forced=>{session.input=inp.value.trim();session.ok=!forced&&accepted.some(a=>normJP(a)===normJP(session.input));session.answered=true;render();};
+  const ck=document.getElementById("checkprod");if(ck)ck.onclick=()=>answer(false);
+  const sh=document.getElementById("showprod");if(sh)sh.onclick=()=>answer(true);
+  const finish=good=>{grade(c.id,good?2:0);S.output.total++;if(good)S.output.correct++;save();session.i++;session.answered=false;session.input="";session.ok=false;render();};
+  const mr=document.getElementById("markright");if(mr)mr.onclick=()=>finish(true);
+  const mw=document.getElementById("markwrong");if(mw)mw.onclick=()=>finish(false);
+  document.getElementById("quit").onclick=()=>{session=null;tab="today";render();};
+}
+
+function startRole(key){
+  const [id,no]=key.split("#"),u=U(id),title=(TASKS[id]||[])[+no]||"口說任務";
+  session={role:true,key,unit:u,title,transcript:""};render();
+}
+function drawRole(){
+  navEl.innerHTML="";const u=session.unit,done=!!S.task[session.key];
+  const contexts={3:"與日本人正式互動",4:"你在餐廳與店員對話",5:"你在商店與店員對話",6:"你與住宿櫃檯對話",7:"你在交通途中詢問工作人員或司機",8:"你在景點詢問工作人員",10:"你與剛認識的朋友聊天"};
+  const ctx=contexts[+u.i.split("-")[0]]||"你正在日本處理這個情境";
+  app.innerHTML=`<div class="study"><div class="qbar"><div>口說任務 · ${u.i}</div><div>${done?"已完成":"練習中"}</div></div>
+    <div class="rolebox"><h1>${esc(session.title)}</h1><p class="sub" style="margin-top:5px">${ctx}</p>
+      <ol><li>先不看答案，用日文完成「${esc(session.title)}」。</li><li>至少說出一個完整句子。</li><li>遇到卡住時，使用「すみません」或「もう一度お願いします」救回對話。</li></ol></div>
+    <button class="cta" id="rolemic">🎙 開始用日文回答</button>
+    <div class="gcard"><div class="hint">語音辨識結果（僅確認內容，不代表發音評分）</div><div class="jp" id="roletext" style="font-size:18px;margin-top:7px">${esc(session.transcript||"尚未錄入")}</div></div>
+    <h2>本單元可用句型</h2>${u.p.map(p=>`<button class="row" data-say="${esc(p[1])}"><div class="l"><div class="t jp">${esc(p[1])}</div><div class="d">${esc(p[0])}</div></div><span class="pill">聽</span></button>`).join("")}
+    <button class="cta" id="roledone">${done?"再完成一次":"完成口說任務"}</button><button class="cta2" id="roleback">回到課程</button></div>`;
+  app.querySelectorAll("[data-say]").forEach(e=>e.onclick=()=>say(e.dataset.say));
+  const mic=document.getElementById("rolemic");mic.onclick=()=>startSpeech(mic,t=>{session.transcript=t;document.getElementById("roletext").textContent=t;});
+  document.getElementById("roledone").onclick=()=>{S.task[session.key]=1;save();session=null;tab="course";render();};
+  document.getElementById("roleback").onclick=()=>{session=null;tab="course";render();};
+}
+function drawReading(){
+  navEl.innerHTML="";
+  if(session.i>=session.q.length){
+    app.innerHTML=`<div class="study"><div class="face"><div class="mid">閱讀練習完成</div>
+      <div class="hint">已完成 ${Object.keys(S.reading).length} / ${READING.length} 篇</div></div><button class="cta" id="bk">回到今日</button></div>`;
+    document.getElementById("bk").onclick=()=>{session=null;tab="today";render();};return;
+  }
+  const no=session.q[session.i],r=READING[no],answered=session.picked!==null,ok=answered&&session.picked===r[4];
+  app.innerHTML=`<div class="study"><div class="qbar"><div>實用閱讀 · ${esc(r[0])}</div><div>${session.i+1} / ${session.q.length}</div></div>
+    <div class="face" style="align-items:stretch"><div class="notice jp">${esc(r[1])}</div>
+      <button class="spk" data-say="${esc(r[1])}">▸ 聽全文</button></div>
+    <h2>${esc(r[2])}</h2><div class="opts">${r[3].map((o,i)=>`<button data-readopt="${i}" class="${answered?(i===r[4]?"right":(i===session.picked?"wrong":"dim")):""}">${esc(o)}</button>`).join("")}</div>
+    ${answered?`<div class="gcard" style="margin-top:12px;border-color:${ok?"var(--ok)":"var(--seal)"}"><b>${ok?"答對了":"答案是「"+esc(r[3][r[4]])+"」"}</b><div class="hint" style="margin-top:6px">${esc(r[5])}</div></div><button class="cta" id="readnext">下一篇</button>`:""}
+    <button class="cta2" id="quit">結束這輪</button></div>`;
+  app.querySelectorAll("[data-say]").forEach(e=>e.onclick=()=>say(e.dataset.say));
+  app.querySelectorAll("[data-readopt]").forEach(e=>e.onclick=()=>{if(answered)return;session.picked=+e.dataset.readopt;S.reading[no]=1;save();drawReading();});
+  const nx=document.getElementById("readnext");if(nx)nx.onclick=()=>{session.i++;session.picked=null;drawReading();};
+  document.getElementById("quit").onclick=()=>{session=null;tab="today";render();};
 }
 function mixQ(){
   const map={};
@@ -2200,5 +2370,15 @@ function drawMix(){
     drawMix();});
   document.getElementById("quit").onclick=()=>{session=null;render();};
 }
-loadSync();probeCloud().then(load).then(()=>{render();return flush();}).then(()=>{if(!session)render();return syncNow();});
+/* 首頁先同步畫出，儲存或同步失敗都不能阻止使用者進入。 */
+loadSync();
+render();
+(async()=>{
+  try{await load();if(!session)render();}
+  catch(e){lastErr="讀取進度失敗："+String((e&&e.message)||e).slice(0,80);if(!session)render();}
+  try{await flush();}catch(e){}
+  try{await syncNow();}catch(e){}
+})().catch(e=>{lastErr="初始化失敗："+String((e&&e.message)||e).slice(0,80);if(!session)render();});
 </script>
+</body>
+</html>
