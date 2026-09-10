@@ -973,6 +973,12 @@ COURSE.forEach(ch=>ch.u.forEach(u=>{
   u.p.forEach(p=>{const id="p"+(pn++);u.ids.push(id);
     push(id,"phrase","travel",p[0],p[1],p[2]||"",u.i+"　"+u.t,p[1]);});
 }));
+DECKS.filter(c=>["phrase","vocab","loan"].includes(c.deck)&&c.speak).slice().forEach(b=>{
+  const label={phrase:"會話句",vocab:"N5 單字",loan:"外來語"}[b.deck];
+  DECKS.push({id:"L"+b.id,deck:"listen",track:b.track,front:"",
+    back:b.deck==="phrase"?b.front:b.back, sub:b.speak,
+    extra:"聽力・"+label,speak:b.speak,audio:1});
+});
 const BY={};DECKS.forEach(c=>{(BY[c.deck]=BY[c.deck]||[]).push(c);});
 
 /* ============ 儲存層 ============
@@ -1145,7 +1151,7 @@ async function syncNow(manual){
 /* ============ 狀態 ============ */
 const KEY="jp:v3";
 let S={cards:{},day:{d:"",newN:0,revN:0},streak:0,last:"",total:0,newPerDay:12,done:{},
-       rate:0.7,start:"",task:{},off:{vocab4:1,gram4:1}};
+       rate:0.7,start:"",task:{},off:{vocab4:1,gram4:1,listen:1}};
 const today=()=>new Date().toLocaleDateString("sv");
 const dnum=s=>Math.floor(new Date(s+"T00:00:00").getTime()/864e5);
 let lastErr="",savedAt="",loadedFrom="";
@@ -1158,7 +1164,7 @@ async function load(){
     try{S=Object.assign(S,JSON.parse(raw));}
     catch(e){lastErr="讀到的資料損毀，無法解析";loadedFrom="";}
   }else{loadedFrom="沒有找到既有進度（第一次使用會是這樣）";}
-  if(!S.done)S.done={};if(!S.task)S.task={};if(!S.off)S.off={vocab4:1,gram4:1};
+  if(!S.done)S.done={};if(!S.task)S.task={};if(!S.off)S.off={vocab4:1,gram4:1,listen:1};
   if(typeof S.rate!=="number")S.rate=0.7;if(!S.start)S.start="";
   const t=today();
   if(S.day.d!==t){
@@ -1223,13 +1229,13 @@ if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
 function say(t,r){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(t);u.lang="ja-JP";u.rate=r||S.rate;
   if(voice)u.voice=voice;speechSynthesis.speak(u);}
-const MODS=[["kana","片假名"],["hira","平假名"],["num","數字量詞"],["gram","N5 文法"],["vocab","N5 單字"],["kanji","N5 漢字"],["loan","旅遊外來語"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]];
+const MODS=[["kana","片假名"],["hira","平假名"],["listen","聽力"],["num","數字量詞"],["gram","N5 文法"],["vocab","N5 單字"],["kanji","N5 漢字"],["loan","旅遊外來語"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]];
 const RATES=[[0.45,"很慢"],[0.55,"慢"],[0.7,"偏慢"],[0.85,"正常"],[1,"原速"]];
 
 /* ============ 畫面 ============ */
 const app=document.getElementById("app"),navEl=document.getElementById("nav");
-const TABS=[["today","今","今日"],["kana","あア","假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"]];
-let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false,kMode="kata",pair=false;
+const TABS=[["today","今","今日"],["kana","あア","假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"],["find","探","搜尋"]];
+let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false,kMode="kata",pair=false,undoSnap=null,played=0,fq="";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function drawNav(){
@@ -1238,7 +1244,7 @@ function drawNav(){
 }
 function render(){
   if(session)return drawStudy();
-  app.innerHTML=({today:vToday,kana:vKana,vocab:vVocab,gram:vGram,course:vCourse}[tab])();
+  app.innerHTML=({today:vToday,kana:vKana,vocab:vVocab,gram:vGram,course:vCourse,find:vFind}[tab])();
   bind();drawNav();window.scrollTo(0,0);
 }
 function bind(){
@@ -1253,6 +1259,12 @@ function bind(){
     ioMode=ioMode===e.dataset.io?"":e.dataset.io;render();
     if(ioMode==="out"){S.exportedAt=today();save();
       const b=document.getElementById("iobox");if(b){b.focus();b.select();}}});
+  const fqe=document.getElementById("fq");
+  if(fqe){
+    fqe.oninput=()=>{fq=fqe.value;const r=document.getElementById("fres");
+      if(r){r.innerHTML=hitsHTML(fq);
+        r.querySelectorAll("[data-say]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();say(e.dataset.say);});}};
+  }
   app.querySelectorAll("[data-km]").forEach(e=>e.onclick=()=>{kMode=e.dataset.km;render();});
   app.querySelectorAll("[data-pair]").forEach(e=>e.onclick=()=>{pair=!pair;render();});
   app.querySelectorAll("[data-tab]").forEach(e=>e.onclick=()=>{tab=e.dataset.tab;render();});
@@ -1335,6 +1347,7 @@ function vToday(){
    :`<div class="cta done">今天做完了。明天有 ${DECKS.filter(c=>{const x=S.cards[c.id];return x&&x.due===dnum(today())+1;}).length} 張要複習</div>`}
   <button class="cta2" data-start="kana">只練片假名</button>
   <button class="cta2" data-start="mixup">易混字挑戰</button>
+  <button class="cta2" data-start="listen">聽力練習（只聽聲音）</button>
   ${next?`<button class="cta2" data-ch="${COURSE.findIndex(c=>c.u.includes(next))}" data-unit="${next.i}">下一個課程單元：${next.i} ${next.t}</button>`:""}
   <h2>進度</h2><div class="bars">${bars()}</div>
   <button class="row" data-setopen style="margin-top:24px">
@@ -1417,7 +1430,7 @@ function vToday(){
   </div>`;
 }
 function bars(){
-  return [["kana","片假名"],["hira","平假名"],["num","數字量詞"],["loan","旅遊外來語"],["vocab","N5 單字"],["gram","N5 文法"],["kanji","N5 漢字"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]]
+  return [["kana","片假名"],["hira","平假名"],["listen","聽力"],["num","數字量詞"],["loan","旅遊外來語"],["vocab","N5 單字"],["gram","N5 文法"],["kanji","N5 漢字"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]]
   .map(([k,name])=>{const a=BY[k],t=a.length,m=a.filter(c=>mastery(c.id)===2).length,l=a.filter(c=>mastery(c.id)===1).length;
    return `<div class="bar"><div class="h"><div>${name}</div><span>${m+l} / ${t}</span></div>
    <div class="track"><i style="width:${(m/t*100).toFixed(1)}%"></i></div></div>`;}).join("");
@@ -1628,6 +1641,40 @@ function vChapters(){
   </div>`;
 }
 
+/* --- 搜尋 --- */
+const DLABEL={kana:"片假名",hira:"平假名",listen:"聽力",num:"數字量詞",loan:"外來語",
+  vocab:"N5 單字",gram:"N5 文法",kanji:"N5 漢字",vocab4:"N4 單字",gram4:"N4 文法",phrase:"課程會話"};
+function findHits(q){
+  q=q.trim().toLowerCase();
+  if(q.length<1)return[];
+  const out=[];
+  for(const c of DECKS){
+    if(c.deck==="listen")continue;
+    const hay=[c.front,c.back,c.sub,c.extra].join(" ").toLowerCase();
+    if(hay.indexOf(q)>=0){out.push(c);if(out.length>=80)break;}
+  }
+  return out;
+}
+function hitsHTML(q){
+  const hits=findHits(q);
+  if(!q.trim())return `<p class="sub">可以查日文、假名或中文意思。例如「結帳」「ください」「ろっぽん」「二人前」</p>`;
+  if(!hits.length)return `<p class="sub">找不到「${esc(q)}」。這 ${DECKS.filter(c=>c.deck!=="listen").length} 張卡裡沒有收錄，需要的話跟我說可以補</p>`;
+  return `<p class="sub">${hits.length}${hits.length>=80?"+":""} 筆</p>`+hits.map(c=>{
+    const m=mastery(c.id);
+    return `<button class="row" ${c.speak?`data-say="${esc(c.speak)}"`:""}>
+      <div class="l"><div class="t jp">${esc(c.front)}</div>
+      <div class="d">${esc(c.back)}${c.sub?"　"+esc(c.sub):""}</div>
+      <div class="d" style="color:var(--ink3)">${DLABEL[c.deck]||c.deck}${c.extra?"　"+esc(c.extra):""}</div></div>
+      ${tag(m)}</button>`;}).join("");
+}
+function vFind(){
+  return `<div class="wrap"><h1>搜尋</h1>
+  <input id="fq" value="${esc(fq)}" placeholder="輸入日文或中文" autocomplete="off"
+    style="width:100%;padding:13px;margin:12px 0 6px;border:1px solid var(--rule);border-radius:var(--r);
+    background:var(--card);color:var(--ink);font-size:16px">
+  <div id="fres">${hitsHTML(fq)}</div></div>`;
+}
+
 /* --- 學習 --- */
 function startSession(kind){
   let q;
@@ -1641,14 +1688,14 @@ function startSession(kind){
   else if(kind.startsWith("u:")){
     const u=UNITS.find(x=>x.i===kind.slice(2));q=u.ids.map(id=>DECKS.find(c=>c.id===id));
   }else{
-    const pool={kana:["kana"],hira:["hira"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"]}[kind];
+    const pool={kana:["kana"],hira:["hira"],listen:["listen"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"]}[kind];
     q=DECKS.filter(c=>pool.includes(c.deck)&&(isDue(c.id)||!seen(c.id)));
     if(!q.length)q=DECKS.filter(c=>pool.includes(c.deck)).slice(0,20);
     for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]];}
     q=q.slice(0,25);
   }
   if(!q||!q.length)return;
-  session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;render();
+  session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;undoSnap=null;played=0;render();
 }
 function mixQ(){
   const map={};
@@ -1666,7 +1713,7 @@ function makeOpts(c){
   (BY[c.deck]||[]).forEach(x=>{if(!used.has(x.back)){used.add(x.back);pool.push(x.back);}});
   return shuf([c.back].concat(shuf(pool).slice(0,3)));
 }
-const TIP={kana:"在心裡唸出這個音",hira:"在心裡唸出這個音",num:"把讀音唸出來",kanji:"先想意思，再想音読み和訓読み",
+const TIP={kana:"在心裡唸出這個音",hira:"在心裡唸出這個音",listen:"先聽，再想是什麼意思",num:"把讀音唸出來",kanji:"先想意思，再想音読み和訓読み",
  loan:"唸出來，再想是什麼意思",vocab:"唸出日文，再想中文意思",vocab4:"唸出日文，再想中文意思",
  gram:"想出正確的形式",gram4:"想出正確的形式",phrase:"出聲把整句日文講出來"};
 
@@ -1680,11 +1727,12 @@ function drawStudy(){
     document.getElementById("bk").onclick=()=>{session=null;render();};return;
   }
   const c=session.q[session.i],isNew=!seen(c.id);
-  const label={kana:"片假名",hira:"平假名",num:"數字量詞",loan:"外來語",vocab:"N5 單字",gram:"N5 文法",
+  const label={kana:"片假名",hira:"平假名",listen:"聽力",num:"數字量詞",loan:"外來語",vocab:"N5 單字",gram:"N5 文法",
     kanji:"N5 漢字",vocab4:"N4 單字",gram4:"N4 文法",phrase:"課程會話"}[c.deck];
   const fc=(c.deck==="kana"||c.deck==="hira"||c.deck==="kanji")?"big jp":
     ((c.deck==="gram"||c.deck==="gram4")?"small jp":(c.deck==="phrase"?"small":"mid jp"));
   if(isNew&&!curOpts)curOpts=makeOpts(c);
+  if(c.audio&&!shown&&!played){played=1;setTimeout(()=>say(c.speak),200);}
   const tip=shown
     ?"想不出來就按「不會」。評分誠實，排程才會準"
     :(isNew?"第一次見面，先猜猜看。選錯不扣分，這一步只是讓你有個印象"
@@ -1692,7 +1740,10 @@ function drawStudy(){
   app.innerHTML=`<div class="study">
   <div class="qbar"><div>${label}${isNew?" · 新卡":"　複習"}</div><div>${session.i+1} / ${session.q.length}</div></div>
   <div class="face">
-    <div class="${fc}">${esc(c.front)}</div>
+    ${c.audio&&!shown
+      ? `<button class="spk" data-say="${esc(c.speak)}" style="font-size:26px;padding:26px 40px;border-radius:99px">▶</button>
+         <button class="spk" data-slow="${esc(c.speak)}" style="margin-top:12px">▶ 放慢再聽</button>`
+      : `<div class="${fc}">${esc(c.front)}</div>`}
     ${shown?`<div class="ans">
       <div class="${(c.deck==="kana"||c.deck==="hira")?"romaji":"mid jp"}">${esc(c.back)}</div>
       ${c.sub?`<div class="hint jp" style="font-size:17px">${esc(c.sub)}</div>`:""}
@@ -1708,17 +1759,32 @@ function drawStudy(){
    :(isNew?`<div class="opts">${curOpts.map(o=>
       `<button data-opt="${esc(o)}" class="jp">${esc(o)}</button>`).join("")}</div>`
      :`<button class="reveal" id="rv">顯示答案</button>`)}
-  <button class="cta2" id="quit">結束這輪</button></div>`;
+  <div style="display:flex;gap:8px;margin-top:8px">
+    ${undoSnap?`<button class="cta2" id="undo" style="margin:0;flex:1">↶ 上一張</button>`:""}
+    <button class="cta2" id="quit" style="margin:0;flex:1">結束這輪</button></div></div>`;
   bind();
   const rv=document.getElementById("rv");
   if(rv)rv.onclick=()=>{shown=true;drawStudy();if(c.speak)say(c.speak);};
   app.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{
     pick=b.dataset.opt;shown=true;drawStudy();if(c.speak)say(c.speak);});
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{
-    const wasNew=!seen(c.id),again=grade(c.id,+b.dataset.g);
+    const wasNew=!seen(c.id);
+    const prev=S.cards[c.id]?JSON.parse(JSON.stringify(S.cards[c.id])):null;
+    const snap={id:c.id,prev,wasNew,i:session.i,total:S.total,last:S.last,pick,opts:curOpts};
+    const again=grade(c.id,+b.dataset.g);
     if(wasNew)S.day.newN++;else S.day.revN++;
-    if(again)session.q.push(c);
-    session.i++;shown=false;pick=null;curOpts=null;drawStudy();});
+    snap.again=again; if(again)session.q.push(c);
+    undoSnap=snap;
+    session.i++;shown=false;pick=null;curOpts=null;played=0;drawStudy();});
+  const ud=document.getElementById("undo");
+  if(ud)ud.onclick=()=>{
+    const u=undoSnap;if(!u)return;
+    if(u.prev)S.cards[u.id]=u.prev;else delete S.cards[u.id];
+    if(u.wasNew)S.day.newN=Math.max(0,S.day.newN-1);else S.day.revN=Math.max(0,S.day.revN-1);
+    S.total=u.total;S.last=u.last;
+    if(u.again&&session.q[session.q.length-1]&&session.q[session.q.length-1].id===u.id)session.q.pop();
+    session.i=u.i;shown=true;pick=u.pick;curOpts=u.opts;played=1;
+    undoSnap=null;save();drawStudy();};
   document.getElementById("quit").onclick=()=>{session=null;render();};
 }
 function drawMix(){
