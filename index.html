@@ -127,7 +127,8 @@ button:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--rule);
   display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:9}
 nav button{flex:1;padding:11px 2px 9px;font-size:11px;color:var(--ink3);text-align:center;line-height:1.3}
-nav button b{display:block;font-size:17px;font-weight:400;margin-bottom:1px;opacity:.55}
+nav button b{display:block;font-size:17px;font-weight:400;margin-bottom:1px;opacity:.55;letter-spacing:-.06em}
+nav button b.two{font-size:15px}
 nav button.on{color:var(--indigo);font-weight:600}
 nav button.on b{opacity:1}
 .empty{text-align:center;color:var(--ink2);font-size:14px;padding:44px 20px}
@@ -170,7 +171,17 @@ const MIXUP=[["シ","ツ","筆順不同：シ 由左下往右上撇兩點，ツ 
 ["ケ","ク","ケ 左上多一撇；ク 沒有"],["ス","ヌ","ヌ 比 ス 多左上一撇"],
 ["テ","フ","テ 有兩橫；フ 只有一個折"],["マ","ム","マ 是折角＋一撇；ム 是撇＋捺"],
 ["ナ","メ","ナ 是十字形；メ 是交叉兩撇"],["コ","ユ","コ 開口朝左；ユ 開口朝上"],
-["レ","ル","ル 是兩筆，レ 只有一筆"],["ラ","ヲ","ヲ 中間多一橫"],["ワ","ウ","ウ 上面多一點"]];
+["レ","ル","ル 是兩筆，レ 只有一筆"],["ラ","ヲ","ヲ 中間多一橫"],["ワ","ウ","ウ 上面多一點"],
+["ぬ","め","ぬ 尾端多繞一個圈，め 沒有"],
+["は","ほ","ほ 上方多一橫"],
+["ま","も","ま 是兩橫＋豎鉤，も 只有一橫在下方"],
+["れ","わ","れ 右邊向外翹出，わ 收成一個圈"],
+["ね","れ","ね 右下多繞一圈"],
+["さ","き","き 比 さ 多一橫"],
+["る","ろ","る 尾端多打一個結"],
+["い","り","い 左短右長且分開，り 兩筆較貼近"],
+["つ","う","う 上面有一點，つ 沒有"],
+["せ","ば","完全不同，但初學常在快讀時看錯"]];
 const LOAN=[["ホテル","hotel","飯店"],["タクシー","taxi","計程車"],["バス","bus","公車"],
 ["コンビニ","convenience store","便利商店"],["レストラン","restaurant","餐廳"],["コーヒー","coffee","咖啡"],
 ["ビール","beer","啤酒"],["ジュース","juice","果汁"],["チェックイン","check-in","入住"],
@@ -272,13 +283,13 @@ const GRAM=[
 /* 每句 [中文, 日文, 假名讀音（與日文相同時留空）] */
 const COURSE=[
 {n:"第一章　從零學會五十音",u:[
- {i:"1-1",t:"認識日文與五十音",g:"日文由平假名、片假名、漢字組成。片假名主要寫外來語，看懂招牌靠它。",kana:1,p:[]},
- {i:"1-2",t:"清音的發音與書寫",g:"46 個基本音。母音只有 a i u e o 五個，比中文單純很多。",kana:1,p:[]},
- {i:"1-3",t:"濁音與半濁音",g:"只有四行會變濁音：か→が(K→G)、さ→ざ(S→Z)、た→だ(T→D)、は→ば(H→B)，右上加兩點，發音從氣音變成無氣音。半濁音只有は行：は→ぱ(H→P)，右上加小圈，仍是氣音。",kana:1,p:[]},
- {i:"1-4",t:"拗音",g:"い段音＋小寫的や行音（ゃゅょ）合成一拍。き(ki)＋ゃ(ya) = きゃ(kya)，不是唸成 ki-ya 兩拍。濁音的い段也可以：ぎゃ、じゃ、びゃ、ぴゃ。",kana:1,p:[]},
- {i:"1-5",t:"長音",g:"拉長一拍。平假名寫母音（おかあさん），片假名一律用橫線（コーヒー）。長短會改變意思。",kana:1,p:[]},
- {i:"1-6",t:"促音",g:"小寫的っ／ッ，停頓一拍不發音。きって（郵票）vs きて（來）。",kana:1,p:[]},
- {i:"1-7",t:"重音（音調）",g:"日文靠高低音區別詞義。はし：頭高型是筷子，尾高型是橋。跟著音檔模仿最快。",kana:1,p:[]}]},
+ {i:"1-1",t:"認識日文與五十音",g:"日文由平假名、片假名、漢字組成。同一個音有兩種寫法：平假名寫日文固有詞，片假名寫外來語和擬聲詞。看懂招牌菜單靠片假名。",kana:"table",p:[]},
+ {i:"1-2",t:"清音的發音與書寫",g:"46 個基本音，平片各一套。母音只有 a i u e o 五個，比中文單純很多。",kana:"sei",p:[]},
+ {i:"1-3",t:"濁音與半濁音",g:"只有四行會變濁音：か→が(K→G)、さ→ざ(S→Z)、た→だ(T→D)、は→ば(H→B)，右上加兩點，發音從氣音變成無氣音。半濁音只有は行：は→ぱ(H→P)，右上加小圈，仍是氣音。",kana:"daku",p:[]},
+ {i:"1-4",t:"拗音",g:"い段音＋小寫的や行音（ゃゅょ）合成一拍。き(ki)＋ゃ(ya) = きゃ(kya)，不是唸成 ki-ya 兩拍。濁音的い段也可以：ぎゃ、じゃ、びゃ、ぴゃ。",kana:"you",p:[]},
+ {i:"1-5",t:"長音",g:"拉長一拍。平假名寫母音（おかあさん），片假名一律用橫線（コーヒー）。長短會改變意思：おばさん是阿姨、おばあさん是奶奶。",kana:"ear",p:[]},
+ {i:"1-6",t:"促音",g:"小寫的っ／ッ，停頓一拍不發音。きって（郵票）vs きて（來），差一拍就是兩個字。",kana:"ear",p:[]},
+ {i:"1-7",t:"重音（音調）",g:"日文靠高低音區別詞義。はし：頭高型是筷子，尾高型是橋。這個只能靠耳朵，跟著課程音檔模仿最快。",kana:"ear",p:[]}]},
 {n:"第二章　十大基礎句型",u:[
  {i:"2-1",t:"你我他、這那哪",g:"私／あなた／彼・これ／それ／あれ／どれ・ここ／そこ／あそこ／どこ",p:[
   ["我姓林。","私は 林です。","わたしは りんです。"],
@@ -940,9 +951,12 @@ const PLAN=[
 /* ============ 建卡 ============ */
 const DECKS=[],UNITS=[];
 function push(id,deck,track,front,back,sub,extra,speak){DECKS.push({id,deck,track,front,back,sub,extra,speak});}
-KANA.forEach((k,i)=>push("k"+i,"kana","jlpt",k[0],k[2],k[1],k[3]?"易混淆字，注意筆順":"",k[0]));
-KANA_D.forEach((k,i)=>push("kd"+i,"kana","jlpt",k[0],k[2],k[1],"濁音／半濁音",k[0]));
-KANA_Y.forEach((k,i)=>push("ky"+i,"kana","jlpt",k[0],k[2],k[1],"拗音：小字不佔一拍",k[0]));
+KANA.forEach((k,i)=>{push("k"+i,"kana","jlpt",k[0],k[2],k[1],k[3]?"易混淆字，注意筆順":"",k[0]);DECKS[DECKS.length-1].row="sei";});
+KANA_D.forEach((k,i)=>{push("kd"+i,"kana","jlpt",k[0],k[2],k[1],"濁音／半濁音",k[0]);DECKS[DECKS.length-1].row="daku";});
+KANA_Y.forEach((k,i)=>{push("ky"+i,"kana","jlpt",k[0],k[2],k[1],"拗音：小字不佔一拍",k[0]);DECKS[DECKS.length-1].row="you";});
+KANA.forEach((k,i)=>{push("hr"+i,"hira","jlpt",k[1],k[2],"","片假名寫作 "+k[0],k[1]);DECKS[DECKS.length-1].row="sei";});
+KANA_D.forEach((k,i)=>{push("hrd"+i,"hira","jlpt",k[1],k[2],"","濁音／半濁音・片假名 "+k[0],k[1]);DECKS[DECKS.length-1].row="daku";});
+KANA_Y.forEach((k,i)=>{push("hry"+i,"hira","jlpt",k[1],k[2],"","拗音・片假名 "+k[0],k[1]);DECKS[DECKS.length-1].row="you";});
 let ni=0;
 CNT.forEach(c=>c.ir.forEach(x=>push("n"+(ni++),"num","jlpt",x[0]+c.c.slice(1),x[1],"",c.c+"　"+c.m,x[1])));
 DATES.forEach(d=>push("nd"+d[0],"num","jlpt",d[0]+"日",d[1],"","日期讀法",d[1]));
@@ -1209,17 +1223,17 @@ if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
 function say(t,r){if(!t||!window.speechSynthesis)return;speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(t);u.lang="ja-JP";u.rate=r||S.rate;
   if(voice)u.voice=voice;speechSynthesis.speak(u);}
-const MODS=[["kana","片假名"],["num","數字量詞"],["gram","N5 文法"],["vocab","N5 單字"],["kanji","N5 漢字"],["loan","旅遊外來語"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]];
+const MODS=[["kana","片假名"],["hira","平假名"],["num","數字量詞"],["gram","N5 文法"],["vocab","N5 單字"],["kanji","N5 漢字"],["loan","旅遊外來語"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]];
 const RATES=[[0.45,"很慢"],[0.55,"慢"],[0.7,"偏慢"],[0.85,"正常"],[1,"原速"]];
 
 /* ============ 畫面 ============ */
 const app=document.getElementById("app"),navEl=document.getElementById("nav");
-const TABS=[["today","今","今日"],["kana","ア","片假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"]];
-let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false;
+const TABS=[["today","今","今日"],["kana","あア","假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"]];
+let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false,kMode="kata",pair=false;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function drawNav(){
-  navEl.innerHTML=TABS.map(t=>`<button data-t="${t[0]}" class="${tab===t[0]&&!session?"on":""}"><b class="jp">${t[1]}</b>${t[2]}</button>`).join("");
+  navEl.innerHTML=TABS.map(t=>`<button data-t="${t[0]}" class="${tab===t[0]&&!session?"on":""}"><b class="jp${t[1].length>1?" two":""}">${t[1]}</b>${t[2]}</button>`).join("");
   navEl.querySelectorAll("button").forEach(b=>b.onclick=()=>{session=null;tab=b.dataset.t;render();});
 }
 function render(){
@@ -1239,6 +1253,12 @@ function bind(){
     ioMode=ioMode===e.dataset.io?"":e.dataset.io;render();
     if(ioMode==="out"){S.exportedAt=today();save();
       const b=document.getElementById("iobox");if(b){b.focus();b.select();}}});
+  app.querySelectorAll("[data-km]").forEach(e=>e.onclick=()=>{kMode=e.dataset.km;render();});
+  app.querySelectorAll("[data-pair]").forEach(e=>e.onclick=()=>{pair=!pair;render();});
+  app.querySelectorAll("[data-tab]").forEach(e=>e.onclick=()=>{tab=e.dataset.tab;render();});
+  app.querySelectorAll("[data-day]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();
+    const p=PLAN[+e.dataset.day],all=p[0].every(i=>S.done[i]);
+    p[0].forEach(i=>{if(all)delete S.done[i];else S.done[i]=1;});save();render();});
   app.querySelectorAll("[data-setopen]").forEach(e=>e.onclick=()=>{setOpen=!setOpen;render();});
   app.querySelectorAll("[data-sync]").forEach(e=>e.onclick=()=>{
     const a=e.dataset.sync;
@@ -1284,7 +1304,8 @@ function bind(){
   app.querySelectorAll("[data-u]").forEach(e=>e.onclick=()=>{openU=openU===e.dataset.u?null:e.dataset.u;render();});
   app.querySelectorAll("[data-chk]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();
     const k=e.dataset.chk;if(S.done[k])delete S.done[k];else S.done[k]=1;save();render();});
-  app.querySelectorAll("[data-ch]").forEach(e=>e.onclick=()=>{openC=+e.dataset.ch;openU=null;render();});
+  app.querySelectorAll("[data-ch]").forEach(e=>e.onclick=()=>{
+    openC=+e.dataset.ch;openU=e.dataset.unit||null;tab="course";cMode="ch";render();});
 }
 
 /* --- 今日 --- */
@@ -1314,7 +1335,7 @@ function vToday(){
    :`<div class="cta done">今天做完了。明天有 ${DECKS.filter(c=>{const x=S.cards[c.id];return x&&x.due===dnum(today())+1;}).length} 張要複習</div>`}
   <button class="cta2" data-start="kana">只練片假名</button>
   <button class="cta2" data-start="mixup">易混字挑戰</button>
-  ${next?`<button class="cta2" data-ch="${COURSE.findIndex(c=>c.u.includes(next))}">下一個課程單元：${next.i} ${next.t}</button>`:""}
+  ${next?`<button class="cta2" data-ch="${COURSE.findIndex(c=>c.u.includes(next))}" data-unit="${next.i}">下一個課程單元：${next.i} ${next.t}</button>`:""}
   <h2>進度</h2><div class="bars">${bars()}</div>
   <button class="row" data-setopen style="margin-top:24px">
     <div class="l"><div class="t">設定與同步</div>
@@ -1396,34 +1417,62 @@ function vToday(){
   </div>`;
 }
 function bars(){
-  return [["kana","片假名"],["num","數字量詞"],["loan","旅遊外來語"],["vocab","N5 單字"],["gram","N5 文法"],["kanji","N5 漢字"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]]
+  return [["kana","片假名"],["hira","平假名"],["num","數字量詞"],["loan","旅遊外來語"],["vocab","N5 單字"],["gram","N5 文法"],["kanji","N5 漢字"],["phrase","課程會話句"],["vocab4","N4 單字"],["gram4","N4 文法"]]
   .map(([k,name])=>{const a=BY[k],t=a.length,m=a.filter(c=>mastery(c.id)===2).length,l=a.filter(c=>mastery(c.id)===1).length;
    return `<div class="bar"><div class="h"><div>${name}</div><span>${m+l} / ${t}</span></div>
    <div class="track"><i style="width:${(m/t*100).toFixed(1)}%"></i></div></div>`;}).join("");
 }
 
-/* --- 片假名 --- */
+/* --- 假名 --- */
 function kt(list,cols){
   return `<div class="kt" style="grid-template-columns:repeat(${cols},1fr)">`+list.map(k=>
-   `<div class="${k[3]?"mix":""}" data-say="${k[0]}"><b class="jp">${k[0]}</b><s class="jp">${k[1]}</s><em>${k[2]}</em></div>`).join("")+"</div>";
+   `<div class="${k[3]?"mix":""}" data-say="${k[0]}"><b class="jp">${k[0]}</b>${k[1]?`<s class="jp">${k[1]}</s>`:""}<em>${k[2]}</em></div>`).join("")+"</div>";
 }
+const isHira=c=>/[\u3041-\u309F]/.test(c);
 function vKana(){
-  const d=BY.kana.filter(c=>mastery(c.id)>0).length;
-  return `<div class="wrap"><h1>片假名</h1>
-  <p class="sub">每格下方是對應的平假名。點一下聽發音。紅框是最容易混淆的字。已掌握 ${d}/${BY.kana.length}</p>
+  const sub=[["kata","片假名"],["hira","平假名"]];
+  return `<div class="wrap" style="padding-bottom:0"><h1>假名</h1>
+  <div style="display:flex;gap:6px;margin:12px 0 4px">
+  ${sub.map(x=>`<button data-km="${x[0]}" class="pill ${kMode===x[0]?"nx":""}" style="padding:8px 18px;font-size:13px">${x[1]}</button>`).join("")}
+  </div></div>`+(kMode==="hira"?vHira():vKata());
+}
+function vKata(){
+  const d=BY.kana.filter(c=>mastery(c.id)===2).length;
+  const strip=l=>l.map(k=>[k[0],pair?k[1]:"",k[2],k[3]||0]);
+  return `<div class="wrap" style="padding-top:8px">
+  <p class="sub">已掌握 ${d}/${BY.kana.length}。紅框是最容易混淆的字，點任一格聽發音</p>
   <button class="cta" data-start="kana">練習片假名</button>
-  <button class="cta2" data-start="mixup">易混字挑戰</button>
-  <h2>清音</h2>${kt(KANA,5)}
-  <h2>濁音・半濁音</h2>${kt(KANA_D,5)}
-  <h2>拗音</h2>${kt(KANA_Y,3)}
+  <button class="cta2" data-start="mixup">易混字挑戰（兩種假名都有）</button>
+  <button class="row" data-pair style="margin-top:14px">
+    <div class="l"><div class="t">${pair?"對照模式":"純片假名模式"}</div>
+    <div class="d">${pair?"每格下方標出對應的平假名":"只顯示片假名，想不起來再切到對照"}</div></div>
+    <span class="pill ${pair?"nx":""}">${pair?"關閉對照":"開啟對照"}</span></button>
+  <h2>清音</h2>${kt(strip(KANA),5)}
+  <h2>濁音・半濁音</h2>${kt(strip(KANA_D),5)}
+  <h2>拗音</h2>${kt(strip(KANA_Y),3)}
   <h2>容易搞混的組合</h2>
-  ${MIXUP.map(m=>`<div class="gcard"><div class="p jp">${m[0]} ／ ${m[1]}</div><div class="n" style="margin:0">${m[2]}</div></div>`).join("")}
+  ${MIXUP.filter(m=>!isHira(m[0])).map(m=>`<div class="gcard"><div class="p jp">${m[0]} ／ ${m[1]}</div>
+    <div class="n" style="margin:0">${m[2]}</div></div>`).join("")}
   <h2>特殊記號</h2>
   <div class="gcard"><div class="p jp">ー</div><div class="n" style="margin:0">長音符號。片假名一律用橫線，不寫母音。コーヒー = ko-hi-i</div></div>
   <div class="gcard"><div class="p jp">ッ</div><div class="n" style="margin:0">小的ツ，促音，停頓一拍。チケット = chi-ke-(停)-to</div></div>
   <h2>旅遊外來語 ${BY.loan.filter(c=>mastery(c.id)>0).length}/${LOAN.length}</h2>
   ${LOAN.map(w=>`<button class="row" data-say="${w[0]}"><div class="l"><div class="t jp">${w[0]}</div>
    <div class="d">${w[2]}　·　${w[1]}</div></div><span class="pill">聽</span></button>`).join("")}</div>`;
+}
+function vHira(){
+  const d=BY.hira.filter(c=>mastery(c.id)===2).length;
+  const conv=l=>l.map(k=>[k[1],k[0],k[2],0]);
+  return `<div class="wrap" style="padding-top:8px">
+  <p class="sub">已掌握 ${d}/${BY.hira.length}。下方小字是對應的片假名</p>
+  <button class="cta" data-start="hira">練習平假名</button>
+  <p class="sub" style="margin-top:12px">已經很熟的話，到設定的「新卡來源」關掉平假名，把每日配額留給片假名和量詞</p>
+  <h2>清音</h2>${kt(conv(KANA),5)}
+  <h2>濁音・半濁音</h2>${kt(conv(KANA_D),5)}
+  <h2>拗音</h2>${kt(conv(KANA_Y),3)}
+  <h2>容易搞混的組合</h2>
+  ${MIXUP.filter(m=>isHira(m[0])).map(m=>`<div class="gcard"><div class="p jp">${m[0]} ／ ${m[1]}</div>
+    <div class="n" style="margin:0">${m[2]}</div></div>`).join("")}</div>`;
 }
 
 /* --- 單字 --- */
@@ -1537,10 +1586,10 @@ function vPlan(){
       <span class="utitle">${names.length?names.map(t=>`<div>${t}</div>`).join(""):`<div style="color:var(--seal)">${p[1]||"自行安排"}</div>`}
       ${names.length&&p[1]?`<div style="font-size:11px;color:var(--ink3);margin-top:2px">${p[1]}</div>`:""}
       ${isCur?`<div style="font-size:11px;color:var(--indigo);margin-top:3px">今天</div>`:""}</span>
-      ${p[0].length?`<span class="chk ${on?"on":""}" style="opacity:.5">✓</span>`
+      ${p[0].length?`<span class="chk ${on?"on":""}" data-day="${n}">✓</span>`
        :`<span class="chk ${on?"on":""}" data-task="d${no}">✓</span>`}
     </div></div>`;}).join("")}
-  <p class="sub" style="margin-top:16px">有單元的日子請到「依章節」打勾（那裡才會解鎖句子）；總複習日直接在這裡勾</p>
+  <p class="sub" style="margin-top:16px">勾一天等於把那天所有單元標成已看，該單元的句子就會進卡片池。也可以到「依章節」逐課勾</p>
   </div>`;
 }
 function vChapters(){
@@ -1561,7 +1610,12 @@ function vChapters(){
       ${u.p.length?`<span style="font-size:11px;color:var(--ink3)"> · ${m}/${u.ids.length} 句已掌握</span>`:""}</span>
       <span class="chk ${on?"on":""}" data-chk="${u.i}">✓</span></button>
     ${op?`<div class="ubody"><div class="pat">${u.g}</div>
-      ${u.kana?`<button class="cta2" data-start="kana" style="margin:10px 0 0">到片假名模組練習</button>`:""}
+      ${({table:`<button class="cta2" data-tab="kana" style="margin:10px 0 0">看平假名・片假名對照表</button>`,
+          sei:`<button class="cta2" data-start="row:sei" style="margin:10px 0 0">練清音（平＋片 92 張）</button>`,
+          daku:`<button class="cta2" data-start="row:daku" style="margin:10px 0 0">練濁音・半濁音（50 張）</button>`,
+          you:`<button class="cta2" data-start="row:you" style="margin:10px 0 0">練拗音（66 張）</button>`,
+          ear:`<div class="n" style="margin:10px 0 0;color:var(--ink3)">這個單元靠耳朵，卡片練不到。請搭配課程音檔反覆聽</div>`
+         }[u.kana])||""}
       ${TASKS[u.i]?`<div class="pat" style="color:var(--ink3)">口說任務（內容見會話模板 PDF 或 AI 口說 APP）</div>
       ${TASKS[u.i].map((t,ti)=>{const k=u.i+"#"+ti;
         return `<button class="row" data-task="${k}" style="margin:6px 0 0;padding:9px 11px">
@@ -1579,10 +1633,15 @@ function startSession(kind){
   let q;
   if(kind==="all")q=buildQueue();
   else if(kind==="mixup"){session={mix:true,i:0,q:mixQ()};shown=false;return render();}
+  else if(kind.startsWith("row:")){
+    const r=kind.slice(4);
+    q=DECKS.filter(c=>(c.deck==="kana"||c.deck==="hira")&&c.row===r);
+    for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]];}
+  }
   else if(kind.startsWith("u:")){
     const u=UNITS.find(x=>x.i===kind.slice(2));q=u.ids.map(id=>DECKS.find(c=>c.id===id));
   }else{
-    const pool={kana:["kana"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"]}[kind];
+    const pool={kana:["kana"],hira:["hira"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"]}[kind];
     q=DECKS.filter(c=>pool.includes(c.deck)&&(isDue(c.id)||!seen(c.id)));
     if(!q.length)q=DECKS.filter(c=>pool.includes(c.deck)).slice(0,20);
     for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]];}
@@ -1592,9 +1651,11 @@ function startSession(kind){
   session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;render();
 }
 function mixQ(){
-  const all=KANA.concat(KANA_D),items=[];
-  MIXUP.forEach(m=>[m[0],m[1]].forEach(ch=>{const k=all.find(x=>x[0]===ch);
-    if(k)items.push({ch,ans:k[2],opts:[m[0],m[1]].map(x=>{const y=all.find(z=>z[0]===x);return y?y[2]:x;}),tip:m[2]});}));
+  const map={};
+  KANA.concat(KANA_D,KANA_Y).forEach(k=>{map[k[0]]=k[2];map[k[1]]=k[2];});
+  const items=[];
+  MIXUP.forEach(m=>[m[0],m[1]].forEach(ch=>{
+    if(map[ch])items.push({ch,ans:map[ch],opts:[m[0],m[1]].map(x=>map[x]||x),tip:m[2]});}));
   for(let i=items.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[items[i],items[j]]=[items[j],items[i]];}
   return items.slice(0,16);
 }
@@ -1605,7 +1666,7 @@ function makeOpts(c){
   (BY[c.deck]||[]).forEach(x=>{if(!used.has(x.back)){used.add(x.back);pool.push(x.back);}});
   return shuf([c.back].concat(shuf(pool).slice(0,3)));
 }
-const TIP={kana:"在心裡唸出這個音",num:"把讀音唸出來",kanji:"先想意思，再想音読み和訓読み",
+const TIP={kana:"在心裡唸出這個音",hira:"在心裡唸出這個音",num:"把讀音唸出來",kanji:"先想意思，再想音読み和訓読み",
  loan:"唸出來，再想是什麼意思",vocab:"唸出日文，再想中文意思",vocab4:"唸出日文，再想中文意思",
  gram:"想出正確的形式",gram4:"想出正確的形式",phrase:"出聲把整句日文講出來"};
 
@@ -1619,9 +1680,9 @@ function drawStudy(){
     document.getElementById("bk").onclick=()=>{session=null;render();};return;
   }
   const c=session.q[session.i],isNew=!seen(c.id);
-  const label={kana:"片假名",num:"數字量詞",loan:"外來語",vocab:"N5 單字",gram:"N5 文法",
+  const label={kana:"片假名",hira:"平假名",num:"數字量詞",loan:"外來語",vocab:"N5 單字",gram:"N5 文法",
     kanji:"N5 漢字",vocab4:"N4 單字",gram4:"N4 文法",phrase:"課程會話"}[c.deck];
-  const fc=(c.deck==="kana"||c.deck==="kanji")?"big jp":
+  const fc=(c.deck==="kana"||c.deck==="hira"||c.deck==="kanji")?"big jp":
     ((c.deck==="gram"||c.deck==="gram4")?"small jp":(c.deck==="phrase"?"small":"mid jp"));
   if(isNew&&!curOpts)curOpts=makeOpts(c);
   const tip=shown
@@ -1633,7 +1694,7 @@ function drawStudy(){
   <div class="face">
     <div class="${fc}">${esc(c.front)}</div>
     ${shown?`<div class="ans">
-      <div class="${c.deck==="kana"?"romaji":"mid jp"}">${esc(c.back)}</div>
+      <div class="${(c.deck==="kana"||c.deck==="hira")?"romaji":"mid jp"}">${esc(c.back)}</div>
       ${c.sub?`<div class="hint jp" style="font-size:17px">${esc(c.sub)}</div>`:""}
       ${c.extra?`<div class="hint">${esc(c.extra)}</div>`:""}
       ${isNew&&pick!==null&&pick!==c.back?`<div class="hint" style="color:var(--seal)">你選了「${esc(pick)}」</div>`:""}
