@@ -950,6 +950,11 @@ const PLAN=[
 
 /* ============ 建卡 ============ */
 const DECKS=[],UNITS=[];
+/* 把答案填回底線，作為朗讀與解析的完整句子 */
+const fparts=g=>{const i=g.q.indexOf("___");if(i<0)return null;
+  return {head:g.q.slice(0,i).replace(/\s*$/,""),ans:g.o[g.a],
+          tail:g.q.slice(i+3).replace(/（[^）]*）/g,"").replace(/\s*$/,"")};};
+const filled=g=>{const f=fparts(g);return f?(f.head+f.ans+f.tail).trim():"";};
 function push(id,deck,track,front,back,sub,extra,speak){DECKS.push({id,deck,track,front,back,sub,extra,speak});}
 KANA.forEach((k,i)=>{push("k"+i,"kana","jlpt",k[0],k[2],k[1],k[3]?"易混淆字，注意筆順":"",k[0]);DECKS[DECKS.length-1].row="sei";});
 KANA_D.forEach((k,i)=>{push("kd"+i,"kana","jlpt",k[0],k[2],k[1],"濁音／半濁音",k[0]);DECKS[DECKS.length-1].row="daku";});
@@ -962,11 +967,13 @@ CNT.forEach(c=>c.ir.forEach(x=>push("n"+(ni++),"num","jlpt",x[0]+c.c.slice(1),x[
 DATES.forEach(d=>push("nd"+d[0],"num","jlpt",d[0]+"日",d[1],"","日期讀法",d[1]));
 BIGNUM.filter(b=>b[2]).forEach((b,i)=>push("nb"+i,"num","jlpt",b[0],b[1],"","百千萬的變音",b[1]));
 LOAN.forEach((w,i)=>push("l"+i,"loan","travel",w[0],w[2],"","源自 "+w[1],w[0]));
-GRAM.forEach((g,i)=>{push("g"+i,"gram","jlpt",g.q,g.o[g.a],"",g.p+"｜"+g.n,"");DECKS[DECKS.length-1].opts=g.o;});
+GRAM.forEach((g,i)=>{push("g"+i,"gram","jlpt",g.q,g.o[g.a],g.p,g.n,filled(g));
+  DECKS[DECKS.length-1].opts=g.o;DECKS[DECKS.length-1].gram=g;DECKS[DECKS.length-1].fp=fparts(g);});
 VOCAB.forEach((v,i)=>push("v"+i,"vocab","jlpt",v[1]||v[0],v[2],v[1]?v[0]:"",v[3],v[0]));
 KANJI.forEach((k,i)=>push("kj"+i,"kanji","jlpt",k[0],k[3],(k[1]?"音 "+k[1]:"")+(k[2]?"　訓 "+k[2]:""),k[4]+"（"+k[5]+"）",k[4]));
 VOCAB4.forEach((v,i)=>push("w"+i,"vocab4","jlpt",v[1]||v[0],v[2],v[1]?v[0]:"",v[3],v[0]));
-GRAM4.forEach((g,i)=>{push("h"+i,"gram4","jlpt",g.q,g.o[g.a],"",g.p+"｜"+g.n,"");DECKS[DECKS.length-1].opts=g.o;});
+GRAM4.forEach((g,i)=>{push("h"+i,"gram4","jlpt",g.q,g.o[g.a],g.p,g.n,filled(g));
+  DECKS[DECKS.length-1].opts=g.o;DECKS[DECKS.length-1].gram=g;DECKS[DECKS.length-1].fp=fparts(g);});
 let pn=0;
 COURSE.forEach(ch=>ch.u.forEach(u=>{
   u.ch=ch.n;u.ids=[];UNITS.push(u);
@@ -979,6 +986,212 @@ DECKS.filter(c=>["phrase","vocab","loan"].includes(c.deck)&&c.speak).slice().for
     back:b.deck==="phrase"?b.front:b.back, sub:b.speak,
     extra:"聽力・"+label,speak:b.speak,audio:1});
 });
+/* ============ 句子拆解：詞彙索引（含讀音）+ 助詞 + 句尾 ============ */
+const LEX={},READ={};
+function addLex(k,v,r){if(!k||!v)return;if(!LEX[k])LEX[k]=v;if(r&&r!==k&&!READ[k])READ[k]=r;}
+
+const HIRA_ONLY=x=>!/[^\u3041-\u309F]/.test(x);
+
+/* ---- 動詞變化生成 ---- */
+const IROW={"き":"く","ぎ":"ぐ","し":"す","ち":"つ","に":"ぬ","び":"ぶ","み":"む","り":"る","い":"う"};
+const TE5={"き":"いて","ぎ":"いで","し":"して","ち":"って","り":"って","い":"って","に":"んで","び":"んで","み":"んで"};
+const TA5={"き":"いた","ぎ":"いだ","し":"した","ち":"った","り":"った","い":"った","に":"んだ","び":"んだ","み":"んだ"};
+const AROW={"き":"か","ぎ":"が","し":"さ","ち":"た","に":"な","び":"ば","み":"ま","り":"ら","い":"わ"};
+const EROW={"き":"け","ぎ":"げ","し":"せ","ち":"て","に":"ね","び":"べ","み":"め","り":"れ","い":"え"};
+const EROW_SET="えけげせぜてでねへべぺめれ";
+const ICHI={"みます":1,"できます":1,"おります":1,"います":1,"かります":1,"すぎます":1,"おきます":1};
+
+function vkind(kana){
+  if(kana==="します")return "suru";
+  if(kana==="きます")return "kuru";
+  if(/します$/.test(kana)&&kana.length>3)return "nsuru";
+  const st=kana.slice(0,-2),last=st.slice(-1);
+  if(EROW_SET.indexOf(last)>=0||ICHI[kana])return "ichi";
+  return IROW[last]?"godan":"";
+}
+/* 同一個 kind 下，假名版與漢字版產出的形式順序一致，才能配對成讀音 */
+function vforms(form,kind){
+  const st=form.slice(0,-2),last=st.slice(-1),cut=st.slice(0,-1);
+  const base=[form,st+"ません",st+"ました",st+"ませんでした",st+"ましょう",st+"たい",st+"たいです",st+"たかった"];
+  if(kind==="suru")return base.concat(["する","して","した","しない","できる","したい"]);
+  if(kind==="kuru")return base.concat([form[0]==="来"?"来る":"くる",form[0]==="来"?"来て":"きて",
+    form[0]==="来"?"来た":"きた",form[0]==="来"?"来ない":"こない"]);
+  if(kind==="nsuru"){const n=form.slice(0,-3);
+    return base.concat([n+"する",n+"して",n+"した",n+"しない",n+"できる",n+"したい"]);}
+  if(kind==="ichi")return base.concat(["る","て","た","ない","なかった","られる","られます","れば","ている","ています"].map(t=>st+t));
+  if(kind==="godan"){
+    const iku=/行き$|いき$/.test(st);
+    return base.concat([cut+IROW[last],cut+(iku?"って":TE5[last]),cut+(iku?"った":TA5[last]),
+      cut+AROW[last]+"ない",cut+AROW[last]+"なかった",cut+EROW[last]+"る",cut+EROW[last]+"ます",
+      cut+EROW[last]+"ば",cut+(iku?"っている":TE5[last]+"いる")]);
+  }
+  return base;
+}
+function addVerb(kana,kanji,mean){
+  const k=vkind(kana); if(!k)return;
+  const A=vforms(kana,k), B=kanji?vforms(kanji,k):null;
+  A.forEach(f=>addLex(f,mean));
+  if(B)B.forEach((f,i)=>addLex(f,mean,A[i]));
+}
+/* ---- い形容詞變化 ---- */
+function addAdjI(kana,kanji,mean){
+  if(!/い$/.test(kana))return;
+  const sufs=[["くない","（否定）"],["くないです","（否定）"],["かった","（過去）"],["かったです","（過去）"],
+    ["くなかった","（過去否定）"],["くありません","（否定・鄭重）"],["くて","（接續）"],["く","（副詞化）"]];
+  sufs.forEach(([sf,tag])=>{
+    addLex(kana.slice(0,-1)+sf,mean+tag);
+    if(kanji)addLex(kanji.slice(0,-1)+sf,mean+tag,kana.slice(0,-1)+sf);
+  });
+}
+
+/* ---- 基本詞彙 ---- */
+VOCAB.concat(VOCAB4).forEach(v=>{
+  const kana=v[0],kanji=v[1];
+  addLex(kanji||kana,v[2],kanji?kana:"");
+  addLex(kana,v[2]);
+  if(/ます$/.test(kana))addVerb(kana,kanji,v[2]);
+  else if(v[3]==="形容")addAdjI(kana,kanji,v[2]);
+});
+LOAN.forEach(w=>addLex(w[0],w[2]));
+CNT.forEach(c=>addLex(c.c.slice(1),c.m));
+
+/* ---- 補充詞：[寫法, 中文, 讀音] ---- */
+[["日本語","日文","にほんご"],["中国語","中文","ちゅうごくご"],["英語","英文","えいご"],
+["日本人","日本人","にほんじん"],["台湾人","台灣人","たいわんじん"],["何分","幾分鐘","なんぷん"],
+["何時","幾點","なんじ"],["何名様","幾位","なんめいさま"],["何番線","幾號月台","なんばんせん"],
+["何回","幾次","なんかい"],["一つ","一個","ひとつ"],["二つ","兩個","ふたつ"],["三つ","三個","みっつ"],
+["一枚","一張","いちまい"],["二枚","兩張","にまい"],["二人","兩人","ふたり"],["二人前","兩人份","ににんまえ"],
+["二貫","兩貫","にかん"],["二本","兩瓶","にほん"],["三個","三個","さんこ"],["二箱","兩盒","ふたはこ"],
+["二泊三日","三天兩夜","にはくみっか"],["少々","稍微","しょうしょう"],["以上","以上、就這樣","いじょう"],
+["別々","分開","べつべつ"],["一番","最","いちばん"],["もう一度","再一次","もういちど"],
+["もう一つ","再一個","もうひとつ"],["もう一枚","再一張","もういちまい"],["大人","大人","おとな"],
+["予約","預約","よやく"],["注文","點餐、訂購","ちゅうもん"],["会計","結帳","かいけい"],
+["観光","觀光","かんこう"],["滞在","停留","たいざい"],["申告","申報","しんこく"],["両替","換錢","りょうがえ"],
+["免税","免稅","めんぜい"],["返品","退貨","へんぴん"],["交換","更換","こうかん"],["試着","試穿","しちゃく"],
+["賞味期限","保存期限","しょうみきげん"],["個包装","單獨包裝","こほうそう"],["売り場","賣場","うりば"],
+["取り寄せ","調貨","とりよせ"],["朝食","早餐","ちょうしょく"],["掃除","打掃","そうじ"],
+["製氷機","製冰機","せいひょうき"],["家賃","房租","やちん"],["光熱費","水電瓦斯費","こうねつひ"],
+["券売機","售票機","けんばいき"],["乗り換え","轉乘","のりかえ"],["住所","地址","じゅうしょ"],
+["料金","費用","りょうきん"],["貸切","包場","かしきり"],["保険","保險","ほけん"],["駐車","停車","ちゅうしゃ"],
+["満タン","加滿","まんタン"],["撮影","攝影","さつえい"],["御朱印","御朱印","ごしゅいん"],
+["お守り","御守","おまもり"],["待ち時間","排隊時間","まちじかん"],["遺失物","遺失物","いしつぶつ"],
+["診察","看診","しんさつ"],["保険証","健保卡","ほけんしょう"],["診断書","診斷書","しんだんしょ"],
+["痛み止め","止痛藥","いたみどめ"],["食後","飯後","しょくご"],["副作用","副作用","ふくさよう"],
+["契約","簽約","けいやく"],["月額","月費","げつがく"],["受け取り","取件","うけとり"],
+["支払い","付款","しはらい"],["前髪","瀏海","まえがみ"],["出身","出身地","しゅっしん"],
+["連絡先","聯絡方式","れんらくさき"],["店内","內用","てんない"],["持ち帰り","外帶","もちかえり"],
+["追加","加點","ついか"],["人前","人份","にんまえ"],["硬め","偏硬","かため"],["薄め","偏淡","うすめ"],
+["抜き","不要放","ぬき"],["割下","壽喜燒醬汁","わりした"],["生卵","生蛋","なまたまご"],
+["電源","插座","でんげん"],["風邪薬","感冒藥","かぜぐすり"],["敏感肌","敏感肌","びんかんはだ"],
+["特売","特價","とくばい"],["保冷剤","保冷劑","ほれいざい"],["満席","客滿","まんせき"],
+["この","這個…",""],["その","那個…",""],["あの","那個…（遠）",""],["どの","哪個…",""],
+["すみません","不好意思",""],["ありがとう","謝謝",""],["よろしく","請多指教",""],
+["おすすめ","推薦",""],["ゆっくり","慢慢地",""],["まっすぐ","直直地",""],["とりあえず","總之先",""]
+].forEach(x=>addLex(x[0],x[1],x[2]));
+
+[["カルビ","牛五花"],["タレ","沾醬"],["マグロ","鮪魚"],["サビ","芥末"],["チャーシュー","叉燒"],
+["ネギ","蔥"],["ホットコーヒー","熱咖啡"],["ケーキセット","蛋糕套餐"],["コインロッカー","投幣置物櫃"],
+["レイトチェックアウト","延後退房"],["タトゥー","刺青"],["エアコン","冷氣"],["タオル","毛巾"],
+["ゴミ","垃圾"],["プレゼント","禮物"],["ポイントカード","集點卡"],["クーポン","優惠券"],
+["ドライヤー","吹風機"],["ガイド","導覽"],["ニュース","新聞"],["ベジタリアン","素食"],
+["プラン","方案"],["シミ","汙漬"],["ジーンズ","牛仔褲"]].forEach(x=>addLex(x[0],x[1]));
+
+/* ---- 補充動詞 [漢字寫法, 假名, 中文] ---- */
+[["預かります","あずかります","保管"],["見せます","みせます","給…看"],["迷います","まよいます","迷路"],
+["撮ります","とります","拍（照）"],["入ります","はいります","進入"],["座ります","すわります","坐"],
+["温めます","あたためます","加熱"],["替えます","かえます","更換"],["足します","たします","加、添"],
+["付けます","つけます","加上"],["分けます","わけます","分類"],["洗います","あらいます","洗"],
+["整えます","ととのえます","修整"],["送ります","おくります","寄送"],["受け取ります","うけとります","領取"],
+["呼びます","よびます","呼叫"],["近づきます","ちかづきます","靠近"],["止めます","とめます","停下"],
+["開けます","あけます","打開"],["曲がります","まがります","轉彎"],["渡ります","わたります","穿越"],
+["歩きます","あるきます","走路"],["起きます","おきます","起床"],["寝ます","ねます","睡覺"],
+["書きます","かきます","寫"],["話します","はなします","說"],["見つかります","みつかります","被找到"],
+["出来上がります","できあがります","完成"],["滞在します","たいざいします","停留"],
+["申告します","しんこくします","申報"],["両替します","りょうがえします","換錢"]
+].forEach(v=>{addLex(v[0],v[2],v[1]);addVerb(v[1],v[0],v[2]);});
+
+/* ---- 助詞 ---- */
+const PART={"は":"主題助詞（唸 wa）","が":"主格／有時是逆接","を":"受詞（唸 o）",
+ "に":"時間・對象・存在點","で":"場所・手段","へ":"方向（唸 e）","と":"和／引用",
+ "も":"也","の":"的","から":"從…起","まで":"到…為止","や":"…等等","か":"疑問",
+ "ね":"尋求同意","よ":"提醒對方","ぐらい":"大約","だけ":"只有","ずつ":"各…"};
+
+/* ---- 句尾與常見結尾 ---- */
+[["です","判斷句尾：是…"],["ですか","疑問句尾"],["でした","是…（過去）"],
+ ["ですね","是…呢（尋求同意）"],["でしょう","應該是…吧"],
+ ["ます","禮貌形句尾"],["ません","禮貌形否定"],["ました","禮貌形過去"],
+ ["ませんでした","禮貌形過去否定"],["ください","請…"],["ましょう","一起…吧"],
+ ["ませんか","要不要…呢"],["じゃありません","不是…"],["ではありません","不是…"],
+ ["ありません","沒有／不是"],["ございます","有／是（更鄭重）"],["いただけますか","可以請您…嗎"],
+ ["お願いします","麻煩你了"],["いいですか","可以嗎"]].forEach(x=>addLex(x[0],x[1]));
+
+const SHORT={"これ":1,"それ":1,"あれ":1,"どれ":1,"ここ":1,"そこ":1,"どこ":1,"この":1,"その":1,"あの":1,
+ "どの":1,"いい":1,"もう":1,"まだ":1,"よく":1,"です":1,"ます":1,"だれ":1,"なに":1,"いつ":1};
+
+function lexHead(x){
+  for(let L=Math.min(x.length,10);L>=1;L--)if(LEX[x.substr(0,L)])return true;
+  return false;
+}
+function chips(jp){
+  const b=breakdown(jp);
+  if(!b.words.length)return "";
+  return `<div style="line-height:1.6;margin-top:6px">`+b.words.map(x=>
+    `<span style="display:inline-block;background:var(--paper2);border-radius:7px;padding:3px 8px;margin:0 4px 5px 0;vertical-align:top">
+      ${x[2]?`<span style="display:block;font-size:9.5px;color:var(--indigo);line-height:1.1" class="jp">${x[2]}</span>`:""}
+      <span class="jp" style="font-size:14px">${x[0]}</span>
+      <span style="color:var(--ink2);font-size:11.5px;margin-left:3px">${x[1]}</span>
+    </span>`).join("")+`</div>`;
+}
+function sentence(jp,fp){
+  const body=fp
+    ? `${fp.head}<span style="color:var(--seal);font-weight:700">${fp.ans}</span>${fp.tail}`
+    : jp;
+  return `<div style="display:flex;align-items:flex-start;gap:8px">
+    <div class="jp" style="font-size:17px;flex:1">${body}</div>
+    <button class="spk" data-say="${jp.replace(/"/g,"&quot;")}" style="margin:0;padding:4px 11px;font-size:13px;flex-shrink:0">▸</button>
+  </div>${chips(jp)}`;
+}
+function breakdown(jp){
+  const chunks=jp.split(/[\s、。！？]+/).filter(Boolean);
+  const out=[],seen={};
+  const add=(k,v)=>{if(k&&v&&!seen[k]){seen[k]=1;out.push([k,v,READ[k]||""]);}};
+  for(const raw of chunks){
+    const ch=raw.replace(/[〜（）「」]/g,"");
+    let i=0,guard=0;
+    while(i<ch.length&&guard++<40){
+      let hit=null;
+      for(let L=Math.min(10,ch.length-i);L>=1;L--){
+        const seg=ch.substr(i,L);
+        if(!LEX[seg])continue;
+        const rest=ch.slice(i+L);
+        /* 短的純假名要有理由才採信：整段用完、後面接助詞、後面還接得下去，或本來就是常用短詞 */
+        const ok=L>=3||!HIRA_ONLY(seg)||rest===""||PART[rest]||PART[rest[0]]||SHORT[seg]||lexHead(rest);
+        if(ok){hit=seg;break;}
+      }
+      if(hit){add(hit,LEX[hit]);i+=hit.length;continue;}
+      let ph=null;
+      for(const L of [3,2,1]){const seg=ch.substr(i,L);if(PART[seg]){ph=seg;break;}}
+      if(ph){add(ph,PART[ph]);i+=ph.length;continue;}
+      i++;
+    }
+  }
+  return {words:out};
+}
+
+/* 每個詞在課程句子裡的一個實際用例 */
+const EXAMPLE={};
+(function(){
+  const ph=DECKS.filter(c=>c.deck==="phrase");
+  const keys=[];
+  VOCAB.forEach(v=>keys.push([v[1]||v[0],v[0]]));
+  VOCAB4.forEach(v=>keys.push([v[1]||v[0],v[0]]));
+  LOAN.forEach(w=>keys.push([w[0],w[0]]));
+  for(const [form,kana] of keys){
+    if(EXAMPLE[form]||form.length<2)continue;
+    const hit=ph.find(c=>c.back.indexOf(form)>=0);
+    if(hit)EXAMPLE[form]={jp:hit.back,zh:hit.front,unit:hit.extra};
+  }
+})();
 const BY={};DECKS.forEach(c=>{(BY[c.deck]=BY[c.deck]||[]).push(c);});
 
 /* ============ 儲存層 ============
@@ -1235,7 +1448,7 @@ const RATES=[[0.45,"很慢"],[0.55,"慢"],[0.7,"偏慢"],[0.85,"正常"],[1,"原
 /* ============ 畫面 ============ */
 const app=document.getElementById("app"),navEl=document.getElementById("nav");
 const TABS=[["today","今","今日"],["kana","あア","假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"],["find","探","搜尋"]];
-let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false,kMode="kata",pair=false,undoSnap=null,played=0,fq="";
+let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false,kMode="kata",pair=false,undoSnap=null,played=0,fq="",taught=false;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function drawNav(){
@@ -1688,14 +1901,14 @@ function startSession(kind){
   else if(kind.startsWith("u:")){
     const u=UNITS.find(x=>x.i===kind.slice(2));q=u.ids.map(id=>DECKS.find(c=>c.id===id));
   }else{
-    const pool={kana:["kana"],hira:["hira"],listen:["listen"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"]}[kind];
+    const pool={kana:["kana"],hira:["hira"],listen:["listen"],vocab:["vocab"],gram:["gram"],num:["num"],kanji:["kanji"],vocab4:["vocab4"],gram4:["gram4"],phrase:["phrase"],loan:["loan"]}[kind];
     q=DECKS.filter(c=>pool.includes(c.deck)&&(isDue(c.id)||!seen(c.id)));
     if(!q.length)q=DECKS.filter(c=>pool.includes(c.deck)).slice(0,20);
     for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]];}
     q=q.slice(0,25);
   }
   if(!q||!q.length)return;
-  session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;undoSnap=null;played=0;render();
+  session={q,i:0,n:q.length};shown=false;pick=null;curOpts=null;undoSnap=null;played=0;taught=false;render();
 }
 function mixQ(){
   const map={};
@@ -1731,16 +1944,23 @@ function drawStudy(){
     kanji:"N5 漢字",vocab4:"N4 單字",gram4:"N4 文法",phrase:"課程會話"}[c.deck];
   const fc=(c.deck==="kana"||c.deck==="hira"||c.deck==="kanji")?"big jp":
     ((c.deck==="gram"||c.deck==="gram4")?"small jp":(c.deck==="phrase"?"small":"mid jp"));
+  const teachNow=isNew&&c.gram&&!taught;
   if(isNew&&!curOpts)curOpts=makeOpts(c);
   if(c.audio&&!shown&&!played){played=1;setTimeout(()=>say(c.speak),200);}
-  const tip=shown
-    ?"想不出來就按「不會」。評分誠實，排程才會準"
-    :(isNew?"第一次見面，先猜猜看。選錯不扣分，這一步只是讓你有個印象"
-           :(TIP[c.deck]||"先想出答案")+"，再看答案");
+  const tip=teachNow?"文法是規則，沒學過猜不出來。先看懂再作答"
+    :(shown?"想不出來就按「不會」。評分誠實，排程才會準"
+    :(isNew?(c.gram?"套用剛才看到的規則":"第一次見面，先猜猜看。選錯不扣分，這一步只是讓你有個印象")
+           :(TIP[c.deck]||"先想出答案")+"，再看答案"));
   app.innerHTML=`<div class="study">
-  <div class="qbar"><div>${label}${isNew?" · 新卡":"　複習"}</div><div>${session.i+1} / ${session.q.length}</div></div>
-  <div class="face">
-    ${c.audio&&!shown
+  <div class="qbar"><div>${label}${teachNow?" · 先學":(isNew?" · 新卡":"　複習")}</div><div>${session.i+1} / ${session.q.length}</div></div>
+  <div class="face" style="${teachNow?"align-items:stretch;justify-content:flex-start;text-align:left":""}">
+    ${teachNow?`
+      <div class="mid jp" style="font-size:22px;margin-bottom:8px">${esc(c.gram.p)}</div>
+      <div style="font-size:14px;color:var(--ink2);line-height:1.7">${esc(c.gram.n)}</div>
+      ${c.gram.ex.map(e=>`<div style="border-left:2px solid var(--ruleS);padding-left:11px;margin-top:12px">
+        ${sentence(e[0],null)}
+        <div style="font-size:12.5px;color:var(--ink2);margin-top:3px">${esc(e[1])}</div></div>`).join("")}
+    `:c.audio&&!shown
       ? `<button class="spk" data-say="${esc(c.speak)}" style="font-size:26px;padding:26px 40px;border-radius:99px">▶</button>
          <button class="spk" data-slow="${esc(c.speak)}" style="margin-top:12px">▶ 放慢再聽</button>`
       : `<div class="${fc}">${esc(c.front)}</div>`}
@@ -1748,21 +1968,43 @@ function drawStudy(){
       <div class="${(c.deck==="kana"||c.deck==="hira")?"romaji":"mid jp"}">${esc(c.back)}</div>
       ${c.sub?`<div class="hint jp" style="font-size:17px">${esc(c.sub)}</div>`:""}
       ${c.extra?`<div class="hint">${esc(c.extra)}</div>`:""}
+      ${(c.gram&&c.speak)?`<div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:12px;text-align:left;width:100%">
+        ${sentence(c.speak,c.fp)}</div>`:""}
+      ${c.gram?`<div style="border-top:1px solid var(--rule);margin-top:12px;padding-top:12px;text-align:left;width:100%">
+        ${c.gram.ex.map(e=>`<div style="margin-bottom:14px">${sentence(e[0],null)}
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:3px">${esc(e[1])}</div></div>`).join("")}</div>`:""}
+      ${(()=>{
+        const jp=(c.deck==="phrase")?c.back:(c.deck==="listen"?c.sub:null);
+        if(!jp)return "";
+        const ch=chips(jp);
+        return ch?`<div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:12px;text-align:left;width:100%">${ch}</div>`:"";
+      })()}
+      ${(()=>{
+        if(!["vocab","vocab4","loan"].includes(c.deck))return "";
+        const e=EXAMPLE[c.front];
+        if(!e)return "";
+        return `<div style="border-top:1px solid var(--rule);margin-top:14px;padding-top:12px;text-align:left;width:100%">
+          ${sentence(e.jp,null)}
+          <div style="font-size:12.5px;color:var(--ink2);margin-top:3px">${esc(e.zh)}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">${esc(e.unit)}</div></div>`;})()}
       ${isNew&&pick!==null&&pick!==c.back?`<div class="hint" style="color:var(--seal)">你選了「${esc(pick)}」</div>`:""}
       ${c.speak?`<div style="display:flex;gap:8px;justify-content:center">
         <button class="spk" data-say="${esc(c.speak)}">▸ 聽發音</button>
         <button class="spk" data-slow="${esc(c.speak)}">▸ 更慢</button></div>`:""}</div>`:""}
   </div>
   <div class="tip">${tip}</div>
-  ${shown?`<div class="grades"><button class="g0" data-g="0">不會</button>
+  ${teachNow?`<button class="reveal" id="taught">懂了，來測驗</button>`
+   :(shown?`<div class="grades"><button class="g0" data-g="0">不會</button>
      <button class="g1" data-g="1">模糊</button><button class="g2" data-g="2">會了</button></div>`
    :(isNew?`<div class="opts">${curOpts.map(o=>
       `<button data-opt="${esc(o)}" class="jp">${esc(o)}</button>`).join("")}</div>`
-     :`<button class="reveal" id="rv">顯示答案</button>`)}
+     :`<button class="reveal" id="rv">顯示答案</button>`))}
   <div style="display:flex;gap:8px;margin-top:8px">
     ${undoSnap?`<button class="cta2" id="undo" style="margin:0;flex:1">↶ 上一張</button>`:""}
     <button class="cta2" id="quit" style="margin:0;flex:1">結束這輪</button></div></div>`;
   bind();
+  const tg=document.getElementById("taught");
+  if(tg)tg.onclick=()=>{taught=true;drawStudy();};
   const rv=document.getElementById("rv");
   if(rv)rv.onclick=()=>{shown=true;drawStudy();if(c.speak)say(c.speak);};
   app.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{
@@ -1775,7 +2017,7 @@ function drawStudy(){
     if(wasNew)S.day.newN++;else S.day.revN++;
     snap.again=again; if(again)session.q.push(c);
     undoSnap=snap;
-    session.i++;shown=false;pick=null;curOpts=null;played=0;drawStudy();});
+    session.i++;shown=false;pick=null;curOpts=null;played=0;taught=false;drawStudy();});
   const ud=document.getElementById("undo");
   if(ud)ud.onclick=()=>{
     const u=undoSnap;if(!u)return;
