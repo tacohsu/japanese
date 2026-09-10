@@ -1203,7 +1203,7 @@ const RATES=[[0.45,"很慢"],[0.55,"慢"],[0.7,"偏慢"],[0.85,"正常"],[1,"原
 /* ============ 畫面 ============ */
 const app=document.getElementById("app"),navEl=document.getElementById("nav");
 const TABS=[["today","今","今日"],["kana","ア","片假名"],["vocab","語","字彙"],["gram","文","文法"],["course","課","課程"]];
-let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null;
+let tab="today",session=null,shown=false,openU=null,openC=0,cMode="ch",vMode="n5",gMode="n5",ioMode="",curOpts=null,pick=null,setOpen=false;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function drawNav(){
@@ -1227,6 +1227,7 @@ function bind(){
     ioMode=ioMode===e.dataset.io?"":e.dataset.io;render();
     if(ioMode==="out"){S.exportedAt=today();save();
       const b=document.getElementById("iobox");if(b){b.focus();b.select();}}});
+  app.querySelectorAll("[data-setopen]").forEach(e=>e.onclick=()=>{setOpen=!setOpen;render();});
   app.querySelectorAll("[data-sync]").forEach(e=>e.onclick=()=>{
     const a=e.dataset.sync;
     if(a==="gen"){const f=document.getElementById("sycode");if(f)f.value=newCode();return;}
@@ -1276,6 +1277,7 @@ function bind(){
 
 /* --- 今日 --- */
 function vToday(){
+  const syncBad=(!!lastErr)||(syncOn()&&/失敗/.test(syncMsg));
   const q=buildQueue(),dueN=DECKS.filter(c=>isDue(c.id)).length;
   const done=S.day.newN+S.day.revN;
   const cells=Array.from({length:32},(_,i)=>`<i class="${i<done?(i<S.day.newN?"n":"f"):""}"></i>`).join("");
@@ -1302,6 +1304,11 @@ function vToday(){
   <button class="cta2" data-start="mixup">易混字挑戰</button>
   ${next?`<button class="cta2" data-ch="${COURSE.findIndex(c=>c.u.includes(next))}">下一個課程單元：${next.i} ${next.t}</button>`:""}
   <h2>進度</h2><div class="bars">${bars()}</div>
+  <button class="row" data-setopen style="margin-top:24px">
+    <div class="l"><div class="t">設定與同步</div>
+    <div class="d">每日新卡量、朗讀速度、跨裝置同步、進度備份${syncBad?" · 有問題待處理":""}</div></div>
+    <span class="pill ${setOpen?"nx":""}">${setOpen?"▲ 收起":"▼ 展開"}</span></button>
+  ${setOpen?`
   <h2>設定</h2>
   <div class="row"><div class="l"><div class="t">每天引入 ${S.newPerDay} 張新卡</div>
     <div class="d">複習量不設上限。調小可減輕負擔</div></div>
@@ -1372,7 +1379,8 @@ function vToday(){
     font-family:ui-monospace,monospace" ${ioMode==="out"?"readonly":'placeholder="把匯出的那串文字貼在這裡"'}>${ioMode==="out"?esc(JSON.stringify(S)):""}</textarea>
     ${ioMode==="out"?`<p class="sub" style="margin-top:6px">全選複製，到另一邊按「匯入進度」貼上</p>`
      :`<button class="cta" id="doimport">確定匯入（會覆蓋現在的進度）</button>`}`:""}
-  <p class="sub" style="margin-top:14px">會話句會等你在「課程」頁把該單元標成已看之後才進入卡片池。還沒標任何單元時，全部開放。</p>
+  <button class="cta2" data-setopen style="margin-top:22px;margin-bottom:4px">▲ 收起設定</button>
+  `:""}
   </div>`;
 }
 function bars(){
