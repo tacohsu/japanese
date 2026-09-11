@@ -1680,13 +1680,14 @@ function render(){
   app.innerHTML=({today:vToday,kana:vKana,vocab:vVocab,gram:vGram,course:vCourse,find:vFind}[tab])();
   bind();drawNav();window.scrollTo(0,0);
 }
+function renderHere(){const y=window.scrollY||0;render();window.scrollTo(0,y);}
 function bind(){
   app.querySelectorAll("[data-say]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();say(e.dataset.say);});
   app.querySelectorAll("[data-start]").forEach(e=>e.onclick=()=>startSession(e.dataset.start));
-  app.querySelectorAll("[data-rmax]").forEach(e=>e.onchange=()=>{S.reviewMax=+e.value;save();render();});
-  app.querySelectorAll("[data-backlog]").forEach(e=>e.onclick=()=>{S.backlogProtect=S.backlogProtect?0:1;save();render();});
+  app.querySelectorAll("[data-rmax]").forEach(e=>e.onchange=()=>{S.reviewMax=+e.value;save();renderHere();});
+  app.querySelectorAll("[data-backlog]").forEach(e=>e.onclick=()=>{S.backlogProtect=S.backlogProtect?0:1;save();renderHere();});
   app.querySelectorAll("[data-rate]").forEach(e=>e.onchange=()=>{S.rate=+e.value;save();
-    say("すみません、もう一度 お願いします。");render();});
+    say("すみません、もう一度 お願いします。");renderHere();});
   app.querySelectorAll("[data-slow]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();say(e.dataset.slow,0.4);});
   app.querySelectorAll("[data-mode]").forEach(e=>e.onclick=()=>{cMode=e.dataset.mode;render();});
   app.querySelectorAll("[data-io]").forEach(e=>e.onclick=()=>{
@@ -1705,7 +1706,7 @@ function bind(){
   app.querySelectorAll("[data-day]").forEach(e=>e.onclick=ev=>{ev.stopPropagation();
     const p=PLAN[+e.dataset.day],all=p[0].every(i=>S.done[i]);
     p[0].forEach(i=>{if(all)delete S.done[i];else S.done[i]=1;});save();render();});
-  app.querySelectorAll("[data-setopen]").forEach(e=>e.onclick=()=>{setOpen=!setOpen;render();});
+  app.querySelectorAll("[data-setopen]").forEach(e=>e.onclick=()=>{setOpen=!setOpen;renderHere();});
   app.querySelectorAll("[data-sync]").forEach(e=>e.onclick=()=>{
     const a=e.dataset.sync;
     if(a==="gen"){const f=document.getElementById("sycode");if(f)f.value=newCode();return;}
@@ -1745,7 +1746,7 @@ function bind(){
       alert("匯入完成："+Object.keys(S.cards).length+" 張卡的進度");}
     catch(err){alert("匯入失敗，請確認貼上的是完整的匯出內容");}};
   app.querySelectorAll("[data-off]").forEach(e=>e.onclick=()=>{
-    const k=e.dataset.off;if(S.off[k])delete S.off[k];else S.off[k]=1;save();render();});
+    const k=e.dataset.off;if(S.off[k])delete S.off[k];else S.off[k]=1;save();renderHere();});
   app.querySelectorAll("[data-vm]").forEach(e=>e.onclick=()=>{vMode=e.dataset.vm;render();});
   app.querySelectorAll("[data-gm]").forEach(e=>e.onclick=()=>{gMode=e.dataset.gm;render();});
   app.querySelectorAll("[data-startplan]").forEach(e=>e.onclick=()=>{
