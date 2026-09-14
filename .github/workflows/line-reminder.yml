@@ -1,0 +1,64 @@
+name: LINE 日文學習提醒
+
+on:
+  schedule:
+    - cron: "30 20 * * *"
+      timezone: "Asia/Taipei"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-line-reminder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 檢查必要設定
+        shell: bash
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          if [[ -z "$LINE_CHANNEL_ACCESS_TOKEN" || -z "$LINE_USER_ID" ]]; then
+            echo "缺少 LINE_CHANNEL_ACCESS_TOKEN 或 LINE_USER_ID。"
+            exit 1
+          fi
+          if [[ ! "$LINE_USER_ID" =~ ^U[0-9a-f]{32}$ ]]; then
+            echo "LINE_USER_ID 格式不正確，應為 U 開頭加 32 位十六進位字元。"
+            exit 1
+          fi
+
+      - name: 傳送 LINE 提醒
+        shell: bash
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+          STUDY_URL: ${{ secrets.STUDY_URL }}
+        run: |
+          message="日文學習時間到了 🇯🇵\n今天完成一點，也是在累積進步。"
+          if [[ -n "$STUDY_URL" ]]; then
+            message="$message\n\n開啟今日練習：$STUDY_URL"
+          fi
+
+          payload="$(jq -n \
+            --arg to "$LINE_USER_ID" \
+            --arg text "$message" \
+            '{to: $to, messages: [{type: "text", text: $text}]}')"
+
+          http_code="$(curl --silent --show-error \
+            --output line-response.json \
+            --write-out '%{http_code}' \
+            --request POST \
+            --url 'https://api.line.me/v2/bot/message/push' \
+            --header "Authorization: Bearer $LINE_CHANNEL_ACCESS_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$payload")"
+
+          if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then
+            echo "LINE 推播失敗，HTTP 狀態碼：$http_code"
+            jq -r '.message // "LINE API 未提供錯誤訊息"' line-response.json
+            exit 1
+          fi
+
+          echo "LINE 提醒已成功送出。"
