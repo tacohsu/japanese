@@ -1,0 +1,33 @@
+name: LINE 日文學習提醒
+
+on:
+  schedule:
+    - cron: "30 20 * * *"
+      timezone: "Asia/Taipei"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-line-reminder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TZ: Asia/Taipei
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SYNC_CODE: ${{ secrets.SYNC_CODE }}
+      LINE_TOKEN: ${{ secrets.LINE_TOKEN || secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+      LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+      APP_URL: ${{ vars.APP_URL || secrets.STUDY_URL }}
+      FORCE_SEND: ${{ github.event_name == 'workflow_dispatch' }}
+      ALWAYS_REMIND: ${{ vars.ALWAYS_REMIND }}
+      GOAL_DATE: ${{ vars.GOAL_DATE }}
+      GOAL_LABEL: ${{ vars.GOAL_LABEL }}
+    steps:
+      - name: 取得日文學習程式
+        uses: actions/checkout@v6
+
+      - name: 讀取進度並傳送 LINE 提醒
+        run: node remind.mjs
