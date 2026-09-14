@@ -36,9 +36,10 @@ jobs:
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           STUDY_URL: ${{ secrets.STUDY_URL }}
         run: |
-          message="日文學習時間到了 🇯🇵\n今天完成一點，也是在累積進步。"
+          message=$'日文學習時間到了 🇯🇵\n今天完成一點，也是在累積進步。'
           if [[ -n "$STUDY_URL" ]]; then
-            message="$message\n\n開啟今日練習：$STUDY_URL"
+            message+=$'\n\n開啟今日練習：'
+            message+="$STUDY_URL"
           fi
 
           payload="$(jq -n \
