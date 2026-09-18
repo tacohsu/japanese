@@ -1,10 +1,17 @@
 name: LINE 日文學習提醒
 
 on:
-  schedule:
-    - cron: "30 20 * * *"
-      timezone: "Asia/Taipei"
+  # 每日排程改由 Supabase Cron 觸發
   workflow_dispatch:
+    inputs:
+      source:
+        description: 呼叫來源
+        required: false
+        default: manual
+        type: choice
+        options:
+          - manual
+          - supabase
 
 permissions:
   contents: read
@@ -13,6 +20,7 @@ jobs:
   send-line-reminder:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
     env:
       TZ: Asia/Taipei
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -21,10 +29,15 @@ jobs:
       LINE_TOKEN: ${{ secrets.LINE_TOKEN || secrets.LINE_CHANNEL_ACCESS_TOKEN }}
       LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
       APP_URL: ${{ vars.APP_URL || secrets.STUDY_URL }}
-      FORCE_SEND: ${{ github.event_name == 'workflow_dispatch' }}
+
+      # Supabase 每日觸發時遵守「完成後不提醒」。
+      # 從 GitHub 手動執行時則強制發送，方便測試。
+      FORCE_SEND: ${{ inputs.source != 'supabase' }}
+
       ALWAYS_REMIND: ${{ vars.ALWAYS_REMIND }}
       GOAL_DATE: ${{ vars.GOAL_DATE }}
       GOAL_LABEL: ${{ vars.GOAL_LABEL }}
+
     steps:
       - name: 取得日文學習程式
         uses: actions/checkout@v6
