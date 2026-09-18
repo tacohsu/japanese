@@ -2,8 +2,8 @@ name: LINE 日文學習提醒
 
 on:
   schedule:
-    # UTC 12:30＝台灣時間 20:30
-    - cron: "30 12 * * *"
+    - cron: "30 20 * * *"
+      timezone: "Asia/Taipei"
   workflow_dispatch:
 
 permissions:
